@@ -11,5 +11,5 @@ kubectl create -f /tmp/pv.yaml
 sudo helm install --name kube-lego --namespace=support  stable/kube-lego -f /tmp/kube-lego.yaml
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
-sudo helm install jupyterhub/binderhub --version=v0.1.0-85ac189 \
+sudo helm install jupyterhub/binderhub --version=v0.1.0-88fd96d \
   --name=binderhub --namespace=binderhub -f /tmp/binderhub.yaml

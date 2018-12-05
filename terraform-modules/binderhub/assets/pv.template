@@ -1,7 +1,7 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: pvc-db-hub
+  name: hub-db-dir
   labels:
     type: local
 spec:
