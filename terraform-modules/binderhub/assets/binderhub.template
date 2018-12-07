@@ -20,8 +20,10 @@ jupyterhub:
        guarantee: ${cpu_alloc}
 
 # BinderHub config
-hub:
-  url: https://${domain}/jupyter
+config:
+  BinderHub:
+    url: https://${domain}/jupyter
+
 service:
   type: NodePort
 storage:
