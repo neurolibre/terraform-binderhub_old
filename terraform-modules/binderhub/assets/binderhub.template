@@ -22,7 +22,7 @@ jupyterhub:
 # BinderHub config
 config:
   BinderHub:
-    url: https://${domain}/jupyter
+    hub_url: https://${domain}/jupyter
     use_registry: false
 
 service:
