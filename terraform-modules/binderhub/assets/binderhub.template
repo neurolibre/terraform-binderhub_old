@@ -23,6 +23,7 @@ jupyterhub:
 config:
   BinderHub:
     url: https://${domain}/jupyter
+    use_registry: false
 
 service:
   type: NodePort
