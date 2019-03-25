@@ -6,9 +6,10 @@ resource "random_id" "token" {
 data "template_file" "config" {
   template = "${file("${path.module}/assets/binderhub.yaml")}"
   vars = {
-    domain     = "${var.domain}"
-    cpu_alloc  = "${var.cpu_alloc}" 
-    mem_alloc  = "${var.mem_alloc_gb}"
+    domain    = "${var.domain}"
+    cpu_alloc = "${var.cpu_alloc}"
+    mem_alloc = "${var.mem_alloc_gb}"
+    docker_id = "${var.docker_id}"
   }
 }
 

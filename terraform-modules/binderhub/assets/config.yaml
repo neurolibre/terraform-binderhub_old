@@ -19,7 +19,8 @@ jupyterhub:
 config:
   BinderHub:
     hub_url: https://${domain}/jupyter
-    use_registry: false
+    use_registry: true
+    image_prefix: ${docker_id}/${domain}-
 
 service:
   type: NodePort
