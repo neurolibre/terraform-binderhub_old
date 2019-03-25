@@ -1,4 +1,4 @@
-variabe "ip" {
+variable "ip" {
   description = "ip address of the master"
 }
 variable "domain" {
