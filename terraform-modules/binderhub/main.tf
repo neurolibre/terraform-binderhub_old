@@ -40,7 +40,7 @@ data "template_file" "install-binderhub" {
   template = "${file("${path.module}/assets/install-binderhub.sh")}"
   vars = {
     binder_version = "v0.2.0-58e8ae9"
-    admin_user     = "${admin_user}"
+    admin_user     = "${var.admin_user}"
   }
 }
 
