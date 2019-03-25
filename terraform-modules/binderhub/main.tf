@@ -4,7 +4,7 @@ resource "random_id" "token" {
 }
 
 data "template_file" "config" {
-  template = "${file("${path.module}/assets/binderhub.yaml")}"
+  template = "${file("${path.module}/assets/config.yaml")}"
   vars = {
     domain    = "${var.domain}"
     cpu_alloc = "${var.cpu_alloc}"
