@@ -1,5 +1,5 @@
 module "provider" {
-  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git/terraform-modules/providers/openstack"
+  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git//terraform-modules/providers/openstack"
 
   project_name         = "ccbinder"
   nb_nodes             = 1
@@ -12,14 +12,14 @@ module "provider" {
 }
 
 module "dns" {
-  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git/terraform-modules/dns/cloudflare"
+  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git//terraform-modules/dns/cloudflare"
 
   domain    = "mydomainname.com"
   public_ip = "${module.provider.public_ip}"
 }
 
 module "binderhub" {
-  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git/terraform-modules/binderhub"
+  source = "git::ssh://git@github.com:cmd-ntrf/terraform-binderhub.git//terraform-modules/binderhub"
 
   domain           = "${module.dns.domain}"
   admin_user       = "${module.provider.admin_user}"
