@@ -4,7 +4,7 @@ resource "random_id" "token" {
 }
 
 data "template_file" "config" {
-  template = "${file("${path.module}/assets/binderhub.template")}"
+  template = "${file("${path.module}/assets/binderhub.yaml")}"
   vars = {
     domain     = "${var.domain}"
     cpu_alloc  = "${var.cpu_alloc}" 
@@ -13,7 +13,7 @@ data "template_file" "config" {
 }
 
 data "template_file" "secret" {
-  template = "${file("${path.module}/assets/secret.template")}"
+  template = "${file("${path.module}/assets/secret.yaml")}"
   vars = {
     api_token       = "${random_id.token.0.hex}"
     secret_token    = "${random_id.token.1.hex}"
@@ -23,12 +23,12 @@ data "template_file" "secret" {
 }
 
 data "template_file" "pv" {
-  template = "${file("${path.module}/assets/pv.template")}"
+  template = "${file("${path.module}/assets/pv.yaml")}"
   vars = { }
 }
 
 data "template_file" "kube-lego" {
-  template = "${file("${path.module}/assets/kube-lego.template")}"
+  template = "${file("${path.module}/assets/kube-lego.yaml")}"
   vars = { 
     domain    = "${var.admin_user}"
     TLS_email = "${var.TLS_email}"    

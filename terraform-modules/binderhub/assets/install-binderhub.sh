@@ -1,3 +1,4 @@
+#!/bin/bash
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
 
 kubectl create -f pv.yaml
