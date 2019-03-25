@@ -21,6 +21,7 @@ module "dns" {
 module "binderhub" {
   source = "git::ssh://git@github.com/cmd-ntrf/terraform-binderhub.git//terraform-modules/binderhub"
 
+  ip               = "${module.provider.public_ip}"
   domain           = "${module.dns.domain}"
   admin_user       = "${module.provider.admin_user}"
   TLS_email        = "email@example.ca"

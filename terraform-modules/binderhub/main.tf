@@ -47,7 +47,7 @@ data "template_file" "install-binderhub" {
 resource "null_resource" "remote_install" {
   connection {
     user        = "${var.admin_user}"
-    host        = "${var.domain}"
+    host        = "${var.ip}"
   }
 
   provisioner "file" {

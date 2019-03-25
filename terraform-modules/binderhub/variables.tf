@@ -1,3 +1,6 @@
+variabe "ip" {
+  description = "ip address of the master"
+}
 variable "domain" {
   description = "Domain name"
 }
