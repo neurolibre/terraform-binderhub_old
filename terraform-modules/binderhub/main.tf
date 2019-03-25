@@ -76,7 +76,7 @@ resource "null_resource" "remote_install" {
 
   provisioner "remote-exec" {
     inline = [
-      "bash /tmp/install-binderhub.sh"
+      "bash /home/${var.admin_user}/install-binderhub.sh"
     ]
   }
 }
