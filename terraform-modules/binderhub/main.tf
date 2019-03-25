@@ -31,7 +31,7 @@ data "template_file" "pv" {
 data "template_file" "kube-lego" {
   template = "${file("${path.module}/assets/kube-lego.yaml")}"
   vars = { 
-    domain    = "${var.admin_user}"
+    domain    = "${var.domain}"
     TLS_email = "${var.TLS_email}"    
   }
 }
@@ -40,6 +40,7 @@ data "template_file" "install-binderhub" {
   template = "${file("${path.module}/assets/install-binderhub.sh")}"
   vars = {
     binder_version = "v0.2.0-58e8ae9"
+    admin_user     = "${admin_user}"
   }
 }
 

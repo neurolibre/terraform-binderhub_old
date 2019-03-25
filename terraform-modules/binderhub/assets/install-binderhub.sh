@@ -1,6 +1,7 @@
 #!/bin/bash
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
 
+cd /home/${admin_user}
 kubectl create -f pv.yaml
 sudo helm install --name kube-lego --namespace=support  stable/kube-lego -f kube-lego.yaml
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
