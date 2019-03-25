@@ -1,15 +1,8 @@
-for f in /tmp/*.template
-do
-    filename=$(basename $f .template)
-    cat $f | envsubst > /tmp/${filename}.yaml
-    rm $f
-done
-
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
 
-kubectl create -f /tmp/pv.yaml
-sudo helm install --name kube-lego --namespace=support  stable/kube-lego -f /tmp/kube-lego.yaml
+kubectl create -f pv.yaml
+sudo helm install --name kube-lego --namespace=support  stable/kube-lego -f kube-lego.yaml
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 sudo helm repo update
-sudo helm install jupyterhub/binderhub --version=v0.2.0-58e8ae9 \
-  --name=binderhub --namespace=binderhub -f /tmp/binderhub.yaml
+sudo helm install jupyterhub/binderhub --version=${binder_version} \
+  --name=binderhub --namespace=binderhub -f config.yaml -f secrets.yaml

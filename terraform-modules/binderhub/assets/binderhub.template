@@ -6,13 +6,9 @@ jupyterhub:
 
   hub:
     baseUrl: /jupyter/
-    services:
-      binder:
-        apiToken: "${api_token}"
   proxy:
     service:
       type: NodePort
-    secretToken: "${secret_token}"
   singleuser:
     memory:
        guarantee: ${mem_alloc}G
@@ -27,8 +23,10 @@ config:
 
 service:
   type: NodePort
+
 storage:
   capacity: 2G
+
 ingress:
   enabled: true
   hosts:
