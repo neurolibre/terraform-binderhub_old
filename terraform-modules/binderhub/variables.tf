@@ -21,3 +21,11 @@ variable "admin_user" {
 variable "private_key_path" {
   description = "Path to private key file"
 }
+
+variable "docker_id" {
+  description = "Docker hub username"
+}
+
+variable "docker_password" {
+  description = "Docker hub password"
+}
