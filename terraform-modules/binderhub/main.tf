@@ -70,7 +70,7 @@ resource "null_resource" "remote_install" {
   }
 
   provisioner "file" {
-    source      = "${data.template_file.install-binderhub.rendered}"
+    content     = "${data.template_file.install-binderhub.rendered}"
     destination = "/home/${var.admin_user}/install-binderhub.sh"
   }
 
