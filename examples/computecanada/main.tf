@@ -8,7 +8,7 @@ module "provider" {
   os_external_network  = "net04_ext"
   os_flavor_master     = "p2-3gb"
   os_flavor_node       = "p2-3gb"
-  image_id             = "080462a8-42b2-4875-9ff6-bf014eb1ee99"
+  image_name           = "Ubuntu-16.04.2-Xenial-x64-2017-07"
   is_computecanada     = true
   cc_private_network   = "default_network"
 }

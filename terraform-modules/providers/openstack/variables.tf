@@ -31,8 +31,8 @@ variable "project_name" {
   description = "Unique project name"
 }
 
-variable "image_id" {
-  description = "Disk image ID"
+variable "image_name" {
+  description = "Disk image name"
 }
 
 variable "is_computecanada" {

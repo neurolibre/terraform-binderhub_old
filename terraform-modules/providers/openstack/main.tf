@@ -1,5 +1,10 @@
 provider "openstack" {}
 
+data "openstack_images_image_v2" "ubuntu" {
+  name = "${var.image_name}"
+  most_recent = true
+}
+
 resource "openstack_compute_secgroup_v2" "secgroup_1" {
   name        = "${var.project_name}-secgroup"
   description = "BinderHub security group"
@@ -156,7 +161,7 @@ resource "openstack_compute_instance_v2" "master" {
   user_data       = "${data.template_cloudinit_config.master_config.rendered}"
 
   block_device {
-    uuid                  = "${var.image_id}"
+    uuid                  = "${data.openstack_images_image_v2.ubuntu.id}"
     source_type           = "image"
     volume_size           = "${var.instance_volume_size}"
     boot_index            = 0
@@ -179,7 +184,7 @@ resource "openstack_compute_instance_v2" "node" {
   user_data       = "${element(data.template_cloudinit_config.node_config.*.rendered, count.index)}"
 
   block_device {
-    uuid                  = "${var.image_id}"
+    uuid                  = "${data.openstack_images_image_v2.ubuntu.id}"
     source_type           = "image"
     volume_size           = "${var.instance_volume_size}"
     boot_index            = 0
