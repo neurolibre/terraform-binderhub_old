@@ -11,6 +11,16 @@ module "provider" {
   image_id             = "3e2cfdd5-f726-4535-b035-26f72917aa96"
 }
 
+module "dns" {
+  source = "../terraform-modules/dns/jetstream"
+
+  public_ip = "${module.provider.public_ip}"
+}
+
+output "url" {
+  value = "${module.dns.domain}"
+}
+
 module "binderhub" {
   source = "../terraform-modules/binderhub"
 

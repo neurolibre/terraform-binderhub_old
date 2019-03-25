@@ -13,6 +13,13 @@ module "provider" {
   cc_private_network   = "default_network"
 }
 
+module "dns" {
+  source = "../terraform-modules/dns/cloudflare"
+
+  domain    = "mydomainname.com"
+  public_ip = "${module.provider.public_ip}"
+}
+
 module "binderhub" {
   source = "../terraform-modules/binderhub"
 
