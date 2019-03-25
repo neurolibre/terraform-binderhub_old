@@ -83,8 +83,13 @@ data "template_file" "kubeadm_master" {
 }
 
 data "openstack_networking_network_v2" "ext_network" {
-  name = "${var.os_external_network}"
+  external = "True"
 }
+
+data "openstack_networking_network_v2" "int_network" {
+  external = "False"
+}
+
 
 resource "openstack_networking_router_v2" "router_1" {
   count = "${1 - var.is_computecanada}"
@@ -170,7 +175,7 @@ resource "openstack_compute_instance_v2" "master" {
   }
 
   network = {
-    name = "${var.is_computecanada ? var.cc_private_network : local.network_name}"
+    name = "${var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : local.network_name}"
   }
 }
 
@@ -193,12 +198,12 @@ resource "openstack_compute_instance_v2" "node" {
   }
 
   network = {
-    name = "${var.is_computecanada ? var.cc_private_network : local.network_name}"
+    name = "${var.is_computecanada ? data.openstack_networking_network_v2.int_network.name : local.network_name}"
   }
 }
 
 resource "openstack_networking_floatingip_v2" "fip_1" {
-	pool = "${var.os_external_network}"
+	pool = "${data.openstack_networking_network_v2.ext_network.name}"
 }
 
 resource "openstack_compute_floatingip_associate_v2" "fip_1" {

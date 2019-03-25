@@ -5,12 +5,10 @@ module "provider" {
   nb_nodes             = 1
   instance_volume_size = 20
   public_key_path      = "./key.pub"
-  os_external_network  = "net04_ext"
   os_flavor_master     = "p2-3gb"
   os_flavor_node       = "p2-3gb"
   image_name           = "Ubuntu-16.04.2-Xenial-x64-2017-07"
   is_computecanada     = true
-  cc_private_network   = "default_network"
 }
 
 module "dns" {
