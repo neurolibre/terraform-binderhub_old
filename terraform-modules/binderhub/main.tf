@@ -13,8 +13,8 @@ data "template_file" "config" {
   }
 }
 
-data "template_file" "secret" {
-  template = "${file("${path.module}/assets/secret.yaml")}"
+data "template_file" "secrets" {
+  template = "${file("${path.module}/assets/secrets.yaml")}"
   vars = {
     api_token       = "${random_id.token.0.hex}"
     secret_token    = "${random_id.token.1.hex}"
