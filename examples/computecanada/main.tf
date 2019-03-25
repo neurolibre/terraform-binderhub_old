@@ -24,6 +24,7 @@ module "binderhub" {
   ip               = "${module.provider.public_ip}"
   domain           = "${module.dns.domain}"
   admin_user       = "${module.provider.admin_user}"
+  binder_version   = "v0.2.0-58e8ae9"
   TLS_email        = "email@example.ca"
   mem_alloc_gb     = 1.5
   cpu_alloc        = 1

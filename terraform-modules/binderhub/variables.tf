@@ -21,6 +21,10 @@ variable "admin_user" {
   description = "User with root access"
 }
 
+variable "binder_version" {
+  description = "binderhub helm chart version - https://jupyterhub.github.io/helm-chart/#development-releases-binderhub"
+}
+
 variable "private_key_path" {
   description = "Path to private key file"
 }

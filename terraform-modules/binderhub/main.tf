@@ -39,7 +39,7 @@ data "template_file" "kube-lego" {
 data "template_file" "install-binderhub" {
   template = "${file("${path.module}/assets/install-binderhub.sh")}"
   vars = {
-    binder_version = "v0.2.0-58e8ae9"
+    binder_version = "${var.binder_version}"
     admin_user     = "${var.admin_user}"
   }
 }
