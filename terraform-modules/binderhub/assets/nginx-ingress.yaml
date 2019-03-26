@@ -1,11 +1,10 @@
-nginx-ingress:
-  rbac:
-   create: true
-  controller:
-    service:
-      type: ClusterIP
-    kind: DaemonSet
-    hostNetwork: true
-    config:
-      # Allow POSTs of upto 64MB, for large notebook support.
-      proxy-body-size: 64m
+rbac:
+ create: true
+controller:
+  service:
+    type: ClusterIP
+  kind: DaemonSet
+  hostNetwork: true
+  config:
+    # Allow POSTs of upto 64MB, for large notebook support.
+    proxy-body-size: 64m
