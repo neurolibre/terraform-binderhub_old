@@ -6,8 +6,8 @@ variable "instance_volume_size" {
   description = "Volume size for each instance"
 }
 
-variable "public_key_path" {
-  description = "Path to public key file"
+variable "ssh_authorized_keys" {
+  description = "List of public SSH keys that can connect to the cluster"
 }
 
 variable "os_flavor_node" {

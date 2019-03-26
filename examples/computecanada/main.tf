@@ -4,7 +4,7 @@ module "provider" {
   project_name         = "ccbinder"
   nb_nodes             = 1
   instance_volume_size = 20
-  public_key_path      = "./key.pub"
+  ssh_authorized_keys  = [""]
   os_flavor_master     = "p2-3gb"
   os_flavor_node       = "p2-3gb"
   image_name           = "Ubuntu-16.04.2-Xenial-x64-2017-07"

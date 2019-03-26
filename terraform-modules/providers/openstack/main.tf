@@ -90,7 +90,6 @@ data "openstack_networking_network_v2" "int_network" {
   external = "False"
 }
 
-
 resource "openstack_networking_router_v2" "router_1" {
   count = "${1 - var.is_computecanada}"
 
@@ -118,6 +117,7 @@ data "template_file" "kubeadm_common" {
   template = "${file("${path.module}/../../../cloud-init/kubeadm/common.yaml")}"
 
   vars {
+    ssh_authorized_keys = "${indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))}"
   }
 }
 
@@ -155,7 +155,7 @@ data "template_cloudinit_config" "master_config" {
 
 resource "openstack_compute_keypair_v2" "keypair" {
   name       = "${var.project_name}-keypair"
-  public_key = "${file(var.public_key_path)}"
+  public_key = "${element(0, var.ssh_authorized_keys)}"
 }
 
 resource "openstack_compute_instance_v2" "master" {
