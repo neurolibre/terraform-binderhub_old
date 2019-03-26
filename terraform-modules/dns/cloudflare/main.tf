@@ -5,5 +5,4 @@ resource "cloudflare_record" "domain" {
   name   = "${element(split(".", var.domain), 0)}"
   value  = "${var.public_ip}"
   type   = "A"
-  ttl    = 3600
 }
