@@ -8,4 +8,4 @@ nginx-ingress:
     hostNetwork: true
     config:
       # Allow POSTs of upto 64MB, for large notebook support.
-      proxy-body-size: 64m    
+      proxy-body-size: 64m

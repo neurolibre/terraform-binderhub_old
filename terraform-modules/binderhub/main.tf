@@ -28,6 +28,11 @@ data "template_file" "pv" {
   vars = { }
 }
 
+data "template_file" "nginx-ingress" {
+  template = "${file("${path.module}/assets/nginx-ingress.yaml")}"
+  vars = { }
+}
+
 data "template_file" "kube-lego" {
   template = "${file("${path.module}/assets/kube-lego.yaml")}"
   vars = { 
@@ -64,6 +69,12 @@ resource "null_resource" "remote_install" {
     content     = "${data.template_file.pv.rendered}"
     destination = "/home/${var.admin_user}/pv.yaml"
   }
+
+  provisioner "file" {
+    content     = "${data.template_file.nginx-ingress.rendered}"
+    destination = "/home/${var.admin_user}/nginx-ingress.yaml"
+  }
+
 
   provisioner "file" {
     content     = "${data.template_file.kube-lego.rendered}"
