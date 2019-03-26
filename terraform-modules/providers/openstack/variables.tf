@@ -8,6 +8,7 @@ variable "instance_volume_size" {
 
 variable "ssh_authorized_keys" {
   description = "List of public SSH keys that can connect to the cluster"
+  type    = "list"
 }
 
 variable "os_flavor_node" {
