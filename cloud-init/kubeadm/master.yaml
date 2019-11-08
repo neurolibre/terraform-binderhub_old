@@ -9,6 +9,10 @@ runcmd:
   - chown ${admin_user} /shared
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
+  - sudo mkdir -p /DATA
+  - sudo chown ${admin_user} /DATA
+  - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - mount -a
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
