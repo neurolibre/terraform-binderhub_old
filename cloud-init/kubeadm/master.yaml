@@ -12,7 +12,7 @@ runcmd:
   - sudo mkdir -p /DATA
   - sudo chown ${admin_user} /DATA
   - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
-  - mount -a
+  - sudo mount -a
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
