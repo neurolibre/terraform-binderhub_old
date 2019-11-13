@@ -23,5 +23,6 @@ runcmd:
   # Authorizing root authentification
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
-  - touch /home/ubuntu/.ssh/config
-  - for n in $nodes; do echo "        HostName "$n >> /home/ubuntu/.ssh/config; echo "        User ubuntu" >> /home/ubuntu/.ssh/config; done
+  - cp /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
+  - sudo chmod u+rwx /tmp/kubeadm-bootstrap/add_nodes.bash
+  - bash /tmp/kubeadm-bootstrap/add_nodes.bash
