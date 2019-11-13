@@ -79,8 +79,6 @@ data "template_file" "kubeadm_master" {
   vars {
     admin_user      = "${var.admin_user}"
     project_name    = "${var.project_name}"
-    docker_id       = "${var.docker_id}"
-    docker_password = "${var.docker_password}"
   }
 }
 
