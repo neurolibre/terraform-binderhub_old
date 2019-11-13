@@ -23,5 +23,5 @@ runcmd:
   # docker configuration for kubernetes
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   - nodes=$(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}')
-  - sudo docker login binder-registry.conp.cloud -u ${module.binderhub.docker_id} -p ${module.binderhub.docker_password}
+  - sudo docker login binder-registry.conp.cloud -u ${docker_id} -p ${docker_password}
   - for n in $nodes; do scp ~/.docker/config.json root@$n:/var/lib/kubelet/config.json; done
