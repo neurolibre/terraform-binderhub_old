@@ -3,16 +3,16 @@ packages:
   - nfs-kernel-server
 
 runcmd:
+  # NFS data
+  - mkdir -p /DATA
+  - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - mount -a
   # NFS
   - echo "/shared `hostname -I | awk '{print $1}' | grep -Po '(\d+\.){3}'`0/24(rw,sync,no_root_squash,no_all_squash)" > /etc/exports
   - mkdir -p /shared
   - chown ${admin_user} /shared
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
-  - sudo mkdir -p /DATA
-  - sudo chown ${admin_user} /DATA
-  - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
-  - sudo mount -a
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
@@ -20,3 +20,8 @@ runcmd:
   - kubectl label nodes `hostname` type=production  
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
+  # docker configuration for kubernetes
+  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
+  - nodes=$(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}')
+  - sudo docker login binder-registry.conp.cloud -u ${module.binderhub.docker_id} -p ${module.binderhub.docker_password}
+  - for n in $nodes; do scp ~/.docker/config.json root@$n:/var/lib/kubelet/config.json; done
