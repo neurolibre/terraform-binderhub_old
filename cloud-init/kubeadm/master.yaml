@@ -24,5 +24,6 @@ runcmd:
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
   - cp /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
-  - sudo chmod u+rwx /tmp/kubeadm-bootstrap/add_nodes.bash
-  - bash /tmp/kubeadm-bootstrap/add_nodes.bash
+  - cp /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/add_nodes.bash
+  - sudo chmod a+x /home/ubuntu/add_nodes.bash
+  - bash /home/ubuntu/add_nodes.bash
