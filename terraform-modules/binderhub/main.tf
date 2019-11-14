@@ -33,8 +33,16 @@ data "template_file" "nginx-ingress" {
   vars = { }
 }
 
-data "template_file" "binderhub-issuer" {
-  template = "${file("${path.module}/assets/binderhub-issuer.yaml")}"
+data "template_file" "production-binderhub-issuer" {
+  template = "${file("${path.module}/assets/production-binderhub-issuer.yaml")}"
+  vars = { 
+    domain    = "${var.domain}"
+    TLS_email = "${var.TLS_email}"
+  }
+}
+
+data "template_file" "staging-binderhub-issuer" {
+  template = "${file("${path.module}/assets/staging-binderhub-issuer.yaml")}"
   vars = { 
     domain    = "${var.domain}"
     TLS_email = "${var.TLS_email}"
