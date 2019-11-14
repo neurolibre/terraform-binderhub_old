@@ -33,8 +33,8 @@ data "template_file" "nginx-ingress" {
   vars = { }
 }
 
-data "template_file" "kube-lego" {
-  template = "${file("${path.module}/assets/kube-lego.yaml")}"
+data "template_file" "binderhub-issuer" {
+  template = "${file("${path.module}/assets/binderhub-issuer.yaml")}"
   vars = { 
     domain    = "${var.domain}"
     TLS_email = "${var.TLS_email}"    
@@ -77,8 +77,8 @@ resource "null_resource" "remote_install" {
 
 
   provisioner "file" {
-    content     = "${data.template_file.kube-lego.rendered}"
-    destination = "/home/${var.admin_user}/kube-lego.yaml"
+    content     = "${data.template_file.binderhub-issuer.rendered}"
+    destination = "/home/${var.admin_user}/binderhub-issuer.yaml"
   }
 
   provisioner "file" {
