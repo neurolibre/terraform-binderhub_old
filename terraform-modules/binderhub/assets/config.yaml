@@ -37,10 +37,17 @@ ingress:
   hosts:
     - ${domain}
   annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
     kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    certmanager.k8s.io/issuer: letsencrypt-production
   https:
     enabled: true
-    type: kube-lego
+    type: nginx
   config:
     # Allow POSTs of upto 64MB, for large notebook support.
     proxy-body-size: 64m
+  tls:
+    - secretName: ${domain}-tls
+      hosts: 
+        - ${domain}
