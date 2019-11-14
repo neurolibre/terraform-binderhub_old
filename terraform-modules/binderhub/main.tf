@@ -86,12 +86,12 @@ resource "null_resource" "remote_install" {
 
   provisioner "file" {
     content     = "${data.template_file.production-binderhub-issuer.rendered}"
-    destination = "/home/${var.admin_user}/binderhub-issuer.yaml"
+    destination = "/home/${var.admin_user}/production-binderhub-issuer.yaml"
   }
   
   provisioner "file" {
     content     = "${data.template_file.staging-binderhub-issuer.rendered}"
-    destination = "/home/${var.admin_user}/binderhub-issuer.yaml"
+    destination = "/home/${var.admin_user}/staging-binderhub-issuer.yaml"
   }
 
   provisioner "file" {
