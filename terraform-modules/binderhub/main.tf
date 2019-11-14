@@ -37,7 +37,8 @@ data "template_file" "binderhub-issuer" {
   template = "${file("${path.module}/assets/binderhub-issuer.yaml")}"
   vars = { 
     domain    = "${var.domain}"
-    TLS_email = "${var.TLS_email}"    
+    TLS_email = "${var.TLS_email}"
+    cloudflare_token = "${var.cloudflare_token}"
   }
 }
 
