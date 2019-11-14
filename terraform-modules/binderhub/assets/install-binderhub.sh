@@ -17,8 +17,8 @@ sudo helm install \
   --namespace cert-manager \
   --version v0.11.0 \
   jetstack/cert-manager
-kubectl create -f production-binderhub-issuer.yaml
-sleep 10m
+kubectl create -f staging-binderhub-issuer.yaml
+sleep 5m
 kubectl get service quickstart
 
 # Binderhub
