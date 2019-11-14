@@ -7,10 +7,10 @@ config:
   LEGO_EMAIL: ${TLS_email}
 
   ## Let's Encrypt API endpoint
-  ## Production: https://acme-v01.api.letsencrypt.org/directory
+  ## Production: https://acme-v02.api.letsencrypt.org/directory
   ## Staging: https://acme-staging.api.letsencrypt.org/directory
   ##
-  LEGO_URL: https://acme-v01.api.letsencrypt.org/directory
+  LEGO_URL: https://acme-v02.api.letsencrypt.org/directory
 
   ## Specify which ingress class to watch
   ##
