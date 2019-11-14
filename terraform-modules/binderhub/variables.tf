@@ -32,3 +32,7 @@ variable "docker_id" {
 variable "docker_password" {
   description = "Docker hub password"
 }
+
+variable "cloudflare_token" {
+  description = "Cloudflare api token for cert-manager" 
+}
