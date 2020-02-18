@@ -2,7 +2,10 @@ rbac:
  create: true
 controller:
   service:
-    type: ClusterIP
+    type: NodePort
+    nodePorts:
+      http: 32080
+      https: 32443
   kind: DaemonSet
   hostNetwork: true
   config:
