@@ -1,5 +1,6 @@
-provider "openstack" {}
-
+provider "openstack" {
+  version = "<= 1.20.0"
+}
 data "openstack_images_image_v2" "ubuntu" {
   name = "${var.image_name}"
   most_recent = true
