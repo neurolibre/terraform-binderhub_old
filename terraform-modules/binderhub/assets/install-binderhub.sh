@@ -7,7 +7,7 @@ cd /home/${admin_user}
 kubectl create -f pv.yaml
 
 # Certificate manager
-sudo helm install --name nginx-ingress --namespace=support stable/nginx-ingress -f nginx-ingress.yaml
+helm install --name nginx-ingress --namespace=support stable/nginx-ingress -f nginx-ingress.yaml
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
 kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
