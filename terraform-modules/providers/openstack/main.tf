@@ -1,5 +1,5 @@
 provider "openstack" {
-  version = "<= 1.20.0"
+  version = "<= 1.24.0"
 }
 data "openstack_images_image_v2" "ubuntu" {
   name = "${var.image_name}"
