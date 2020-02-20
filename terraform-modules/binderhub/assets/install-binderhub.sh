@@ -8,7 +8,7 @@ kubectl create -f pv.yaml
 
 # Certificate manager
 kubectl create namespace binderhub
-sudo helm install --name nginx-ingress --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
+sudo helm install --name binderhub-proxy --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
 sudo helm repo add jetstack https://charts.jetstack.io
 sudo helm repo update
@@ -18,7 +18,7 @@ sudo helm install \
   --version v0.13.1 \
   jetstack/cert-manager
 kubectl apply -f staging-binderhub-issuer.yaml
-kubectl get service nginx-ingress
+kubectl get services --namespace binderhub binderhub-proxy-nginx-ingress-controller
 
 # Binderhub
 sudo helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
