@@ -8,8 +8,8 @@ kubectl create -f pv.yaml
 
 # Certificate manager
 kubectl create namespace binderhub
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.11.0/cert-manager.yaml
-kubectl apply -f production-binderhub-issuer.yaml
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.13.1/cert-manager.yaml
+kubectl apply -f staging-binderhub-issuer.yaml
 sudo helm install --name binderhub-proxy --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
 kubectl get services --namespace binderhub binderhub-proxy-nginx-ingress-controller
 
