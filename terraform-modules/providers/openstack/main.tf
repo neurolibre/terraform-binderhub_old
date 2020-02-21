@@ -30,6 +30,27 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
     ip_protocol = "udp"
     self        = true
   }
+	
+    rule {
+    from_port   = -1
+    to_port     = -1
+    ip_protocol = "icmp"
+    cidr        = "192.168.73.30/32"
+  }
+
+  rule {
+    from_port   = 1
+    to_port     = 65535
+    ip_protocol = "tcp"
+    cidr        = "192.168.73.30/32"
+  }
+
+  rule {
+    from_port   = 1
+    to_port     = 65535
+    ip_protocol = "udp"
+    cidr        = "192.168.73.30/32"
+  }
 
   rule {
     from_port   = 22
@@ -50,13 +71,6 @@ resource "openstack_compute_secgroup_v2" "secgroup_1" {
     to_port     = 80
     ip_protocol = "tcp"
     cidr        = "0.0.0.0/0"
-  }
-	
-  rule {
-    from_port   = 6443
-    to_port     = 6443
-    ip_protocol = "tcp"
-    cidr        = "192.168.73.0/24"
   }
 }
 
