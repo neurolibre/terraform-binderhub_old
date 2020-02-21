@@ -15,7 +15,7 @@ jupyterhub:
       # Allow POSTs of upto 64MB, for large notebook support.
       proxy-body-size: 64m
     tls:
-      - secretName: ${domain}-tls
+      - secretName: ${TLS_name}-tls
         hosts:
           - ${domain}
   hub:
