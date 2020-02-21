@@ -6,6 +6,6 @@ resource "cloudflare_record" "domain" {
   domain = "${join(".", slice(split(".", var.domain), 1, length(split(".", var.domain))))}"
   name   = "${element(split(".", var.domain), 0)}"
   #value  = "${var.public_ip}"
-  value = 206.12.92.228
+  value = "206.12.92.228"
   type   = "A"
 }
