@@ -7,7 +7,7 @@ data "template_file" "config" {
   template = "${file("${path.module}/assets/config.yaml")}"
   vars = {
     domain    = "${var.domain}"
-    tls_name  = "${var.tls_name}"
+    TLS_name  = "${var.TLS_name}"
     cpu_alloc = "${var.cpu_alloc}"
     mem_alloc = "${var.mem_alloc_gb}"
     docker_id = "${var.docker_id}"
