@@ -6,7 +6,7 @@ jupyterhub:
     annotations:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
-      certmanager.k8s.io/issuer: letsencrypt-prod
+      certmanager.k8s.io/issuer: letsencrypt-staging
     https:
       enabled: true
       type: nginx
@@ -48,7 +48,7 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
-    certmanager.k8s.io/issuer: letsencrypt-prod
+    certmanager.k8s.io/issuer: letsencrypt-staging
   https:
     enabled: true
     type: nginx
