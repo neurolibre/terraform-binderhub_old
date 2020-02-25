@@ -8,7 +8,7 @@ kubectl create -f pv.yaml
 
 # TLS certificate management
 # cert-manager
-kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.11.0/deploy/manifests/00-crds.yaml
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 sudo helm repo add jetstack https://charts.jetstack.io
@@ -16,7 +16,7 @@ sudo helm repo update
 sudo helm install \
   --name cert-manager \
   --namespace cert-manager \
-  --version v0.13.1 \
+  --version v0.11.0 \
   jetstack/cert-manager
 kubectl create namespace binderhub
 kubectl apply -f staging-binderhub-issuer.yaml
