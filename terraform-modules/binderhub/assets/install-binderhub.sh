@@ -6,10 +6,21 @@ cd /home/${admin_user}
 #Persistent volume
 kubectl create -f pv.yaml
 
-# Certificate manager
-kubectl create namespace binderhub
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v0.13.1/cert-manager.yaml
+# TLS certificate management
+# cert-manager
+kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
+kubectl create namespace cert-manager
+kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+sudo helm repo add jetstack https://charts.jetstack.io
+sudo helm repo update
+sudo helm install \
+  --name cert-manager \
+  --namespace cert-manager \
+  --version v0.13.1 \
+  jetstack/cert-manager
 kubectl apply -f staging-binderhub-issuer.yaml
+# Binderhub proxy
+kubectl create namespace binderhub
 sudo helm install --name binderhub-proxy --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
 kubectl get services --namespace binderhub binderhub-proxy-nginx-ingress-controller
 
