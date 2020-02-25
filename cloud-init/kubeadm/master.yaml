@@ -26,4 +26,6 @@ runcmd:
   - cp /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
   - cp /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/add_nodes.bash
   - sudo chmod a+x /home/ubuntu/add_nodes.bash
+  - sudo chgrp ubuntu /home/ubuntu/.ssh/config
+  - sudo chown ubuntu /home/ubuntu/.ssh/config
   - bash /home/ubuntu/add_nodes.bash
