@@ -1,5 +1,8 @@
 #!/bin/bash
+#waiting for k8s initialization
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
+while [ ! -f /tmp/node-initialized ]; do sleep 5; done
+while [ ! -f /tmp/master-initialized ]; do sleep 5; done
 
 cd /home/${admin_user}
 
