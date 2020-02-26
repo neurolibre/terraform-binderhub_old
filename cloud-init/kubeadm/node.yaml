@@ -13,3 +13,5 @@ runcmd:
   - su ${admin_user} -c "/tmp/install.sh"
   # authorizing root login
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
+  # creating flag to say that node configuration finished
+  - touch /tmp/$HOSTNAME-initialized
