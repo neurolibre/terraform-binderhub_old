@@ -25,7 +25,7 @@ runcmd:
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
   # ssh config for nodes
   # make sure that k8s node is ready
-  - while [ ! -n "$(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}')" ]; do sleep 1; done;
+  - while [ ! -f /shared/node-initialized ]; do sleep 10; done;
   - sudo chmod a+x /home/ubuntu/add_nodes.bash;
   - sudo chgrp ubuntu /home/ubuntu/.ssh/config;
   - sudo chown ubuntu /home/ubuntu/.ssh/config;
