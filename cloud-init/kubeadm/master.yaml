@@ -13,6 +13,9 @@ runcmd:
   - chown ${admin_user} /shared
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
+   # Authorizing root authentification
+  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/authorized_keys/
+  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
@@ -20,8 +23,6 @@ runcmd:
   - kubectl label nodes `hostname` type=production  
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
-  # Authorizing root authentification
-  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
   # make sure that k8s node is ready
   - while [ ! -n "$(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}')" ]; do sleep 1; done;
