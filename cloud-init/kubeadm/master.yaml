@@ -23,7 +23,8 @@ runcmd:
   # Authorizing root authentification
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
-  - cp /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
+  # make sure that compute node is ready
+  - while [[ ! $(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}') ]]; do sleep 1; done;
   - cp /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/add_nodes.bash
   - sudo chmod a+x /home/ubuntu/add_nodes.bash
   - sudo chgrp ubuntu /home/ubuntu/.ssh/config
