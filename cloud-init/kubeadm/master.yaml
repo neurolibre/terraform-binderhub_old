@@ -14,7 +14,7 @@ runcmd:
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
    # Authorizing root authentification
-  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/authorized_keys/
+  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
   - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
