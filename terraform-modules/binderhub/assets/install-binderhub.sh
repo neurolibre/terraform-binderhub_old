@@ -3,6 +3,8 @@
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
 while [ ! -f /shared/node-initialized ]; do sleep 1; done
 while [ ! -f /shared/master-initialized ]; do sleep 1; done
+#TMP FIXME
+sleep 15m
 
 cd /home/${admin_user}
 
