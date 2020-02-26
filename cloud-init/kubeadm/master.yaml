@@ -30,4 +30,4 @@ runcmd:
   - sudo chown ubuntu /home/ubuntu/.ssh/config;
   - sudo bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
-  - touch /home/ubuntu/master-finished
+  - touch /tmp/master-initialized
