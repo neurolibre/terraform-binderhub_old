@@ -3,8 +3,6 @@
 while [ ! -f /var/lib/cloud/instance/boot-finished ]; do sleep 10; done
 while [ ! -f /shared/node-initialized ]; do sleep 1; done
 while [ ! -f /shared/master-initialized ]; do sleep 1; done
-#TMP FIXME
-sleep 30m
 
 cd /home/${admin_user}
 
@@ -24,6 +22,9 @@ sudo helm install \
   --version v0.13.1 \
   jetstack/cert-manager
 kubectl create namespace binderhub
+#TMP FIXME
+sleep 15m
+
 kubectl apply -f staging-binderhub-issuer.yaml
 kubectl apply -f production-binderhub-issuer.yaml
 # Binderhub proxy
