@@ -23,7 +23,7 @@ sudo helm install \
   jetstack/cert-manager
 kubectl create namespace binderhub
 #wait until cert-manager webhook is ready
-sleep 30s
+sleep 1m
 kubectl apply -f staging-binderhub-issuer.yaml
 kubectl apply -f production-binderhub-issuer.yaml
 # Binderhub proxy
