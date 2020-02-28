@@ -33,4 +33,4 @@ runcmd:
   - while [[ ! $(ls /shared/ | grep not-initialized) ]]; do sleep 5; done;
   - sudo bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
-  - touch /shared/master-initialized
+  - touch /shared/k8s-initialized
