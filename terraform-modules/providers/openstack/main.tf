@@ -139,7 +139,7 @@ data "template_file" "kubeadm_common" {
   template = "${file("${path.module}/../../../cloud-init/kubeadm/common.yaml")}"
 
   vars {
-    ssh_authorized_keys = "${indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))}"
+    ssh_authorized_keys = "no-port-forwarding,no-agent-forwarding,no-X11-forwarding ${indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))}"
   }
 }
 
