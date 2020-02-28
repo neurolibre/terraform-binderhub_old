@@ -26,10 +26,11 @@ runcmd:
   # ssh config for nodes
   # make sure that k8s node is ready
   - sudo mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
+  - sudo mv /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
   - sudo chmod a+x /home/ubuntu/add_nodes.bash;
   - sudo chgrp ubuntu /home/ubuntu/.ssh/config;
   - sudo chown ubuntu /home/ubuntu/.ssh/config;
-  - while [ ! -f /shared/node-initialized ]; do sleep 10; done;
+  - while [[ ! $(ls /shared/ | grep not-initialized) ]]; do sleep 5; done;
   - sudo bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
   - touch /shared/master-initialized
