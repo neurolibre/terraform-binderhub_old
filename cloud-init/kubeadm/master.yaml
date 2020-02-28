@@ -13,9 +13,6 @@ runcmd:
   - chown ${admin_user} /shared
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
-   # Authorizing root authentification
-  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
-  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
@@ -23,6 +20,9 @@ runcmd:
   - kubectl label nodes `hostname` type=production  
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
+  # Authorizing root authentification
+  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
+  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
   # make sure that k8s node is ready
   - sudo mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
@@ -31,7 +31,7 @@ runcmd:
   - sudo chgrp ubuntu /home/ubuntu/.ssh/config;
   - sudo chown ubuntu /home/ubuntu/.ssh/config;
   #- while [[ $(ls /shared/ | grep not-initialized) ]]; do sleep 5; done;
-  - while [[ ! $(kubectl get nodes -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}') ]]; do sleep 5; done;
+  - while [[ ! $(kubectl get nodes --selector='!node-role.kubernetes.io/master' -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}') ]]; do sleep 5; done;
   - sudo bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
   - touch /shared/k8s-initialized
