@@ -5,8 +5,6 @@ runcmd:
   # NFS
   - mkdir -p /shared
   - echo "${master_ip}:/shared      /shared      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
-  # creating flag to say that node configuration is on the way
-  - touch /shared/node-$HOSTNAME-not-initialized
   - mkdir -p /DATA
   - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
@@ -15,5 +13,5 @@ runcmd:
   - su ${admin_user} -c "/tmp/install.sh"
   # authorizing root login
   - sudo mv /shared/authorized_keys /root/.ssh/
-  # deleting flag to say that node configuration finished
-  - rm /shared/node-$HOSTNAME-not-initialized
+  # creating flag to say that node configuration finished
+  - touch /shared/node-$HOSTNAME-initialized
