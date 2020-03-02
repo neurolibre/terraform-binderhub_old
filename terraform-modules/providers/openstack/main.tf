@@ -140,6 +140,7 @@ data "template_file" "kubeadm_common" {
 
   vars {
     ssh_authorized_keys = "${indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))}"
+    nb_nodes = "${var.nb_nodes}"
   }
 }
 
