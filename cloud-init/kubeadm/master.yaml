@@ -14,9 +14,9 @@ runcmd:
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
   # enabling k8s for root user
-  - mkdir -p /root/.kube
-  - cp --remove-destination /etc/kubernetes/admin.conf /root/.kube/config
-  - chown root /root/.kube/config
+  - mkdir -p $HOME/.kube
+  - cp --remove-destination /etc/kubernetes/admin.conf $HOME/.kube/config
+  - chown $(id -u):$(id -g) $HOME/.kube/config
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
