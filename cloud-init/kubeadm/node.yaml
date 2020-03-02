@@ -13,5 +13,3 @@ runcmd:
   - su ${admin_user} -c "/tmp/install.sh"
   # authorizing root login
   - sudo mv /shared/authorized_keys /root/.ssh/
-  # creating flag to say that node configuration finished
-  - touch /shared/node-$HOSTNAME-initialized
