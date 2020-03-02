@@ -13,6 +13,10 @@ runcmd:
   - chown ${admin_user} /shared
   - systemctl enable nfs-kernel-server
   - systemctl restart nfs-kernel-server
+  # enabling k8s for root user
+  - mkdir -p $HOME/.kube
+  - cp --remove-destination /etc/kubernetes/admin.conf $HOME/.kube/config
+  - chown ${SUDO_UID} $HOME/.kube/config
   # Kubeadm  
   - echo "SUDO_UID=${admin_user} sudo -E /tmp/kubeadm-bootstrap/init-master.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
@@ -21,20 +25,16 @@ runcmd:
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
   # Authorizing root authentification
-  - sudo cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
-  - sudo mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
+  - cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
+  - mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
   # make sure that k8s node is ready
-  - sudo mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
-  - sudo mv /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
-  - sudo chmod a+x /home/ubuntu/add_nodes.bash;
-  - sudo chgrp ubuntu /home/ubuntu/.ssh/config;
-  - sudo chown ubuntu /home/ubuntu/.ssh/config;
-  - echo "|||||"
-  - whoami
-  - echo "|||||"
-  - su - ubuntu
+  - mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
+  - mv /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
+  - chmod a+x /home/ubuntu/add_nodes.bash;
+  - chgrp ubuntu /home/ubuntu/.ssh/config;
+  - chown ubuntu /home/ubuntu/.ssh/config;
   - while [ $(kubectl get nodes --selector='!node-role.kubernetes.io/master' -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}' | wc -w) -ne ${nb_nodes} ]; do sleep 5; echo $(kubectl get nodes --selector='!node-role.kubernetes.io/master' -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}'); done;
-  - sudo bash /home/ubuntu/add_nodes.bash
+  - bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
   - touch /shared/k8s-initialized
