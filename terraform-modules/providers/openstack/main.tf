@@ -101,6 +101,7 @@ data "template_file" "kubeadm_master" {
   vars {
     admin_user      = "${var.admin_user}"
     project_name    = "${var.project_name}"
+    nb_nodes 	    = "${var.nb_nodes}"
   }
 }
 
@@ -140,7 +141,6 @@ data "template_file" "kubeadm_common" {
 
   vars {
     ssh_authorized_keys = "${indent(2, join("\n", formatlist("- %s", var.ssh_authorized_keys)))}"
-    nb_nodes = "${var.nb_nodes}"
   }
 }
 
