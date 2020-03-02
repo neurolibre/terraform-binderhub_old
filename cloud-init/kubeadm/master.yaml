@@ -30,6 +30,9 @@ runcmd:
   - sudo chmod a+x /home/ubuntu/add_nodes.bash;
   - sudo chgrp ubuntu /home/ubuntu/.ssh/config;
   - sudo chown ubuntu /home/ubuntu/.ssh/config;
+  - echo "|||||||||||||||||"
+  - echo $nb_nodes
+  - echo "|||||||||||||||||"
   - while [ $(kubectl get nodes --selector='!node-role.kubernetes.io/master' -o jsonpath='{range .items[*].status.addresses[?(@.type=="InternalIP")]}{.address} {end}' | wc -w) -ne $nb_nodes ]; do sleep 5; done;
   - sudo bash /home/ubuntu/add_nodes.bash
   # creating flag to say that master configuration finished
