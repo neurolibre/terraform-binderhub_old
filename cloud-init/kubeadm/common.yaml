@@ -11,9 +11,6 @@ runcmd:
 ssh_authorized_keys:
   ${ssh_authorized_keys}
   
-nb_nodes:
-  ${nb_nodes}
-
 write_files:
   - path: /tmp/install.sh
     permissions: 0755
