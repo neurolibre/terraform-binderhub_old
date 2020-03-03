@@ -24,6 +24,15 @@ data "template_file" "secrets" {
   }
 }
 
+data "template_file" "kubeadm_master" {
+  template = "${file("${path.module}/../../cloud-init/kubeadm/master.yaml")}"
+
+  vars {
+    docker_id       = "${var.docker_id}"
+    docker_password = "${var.docker_password}"
+  }
+}
+
 data "template_file" "pv" {
   template = "${file("${path.module}/assets/pv.yaml")}"
   vars = { }
