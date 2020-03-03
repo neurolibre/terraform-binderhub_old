@@ -22,7 +22,7 @@ runcmd:
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
   # ssh config for nodes
   # make sure that k8s node is ready, and enable easy ssh
-  - touch /home/ubuntu/.ssh/config
+  - su ${admin_user} -c "touch /home/ubuntu/.ssh/config"
   - mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
   - chmod u+x /home/ubuntu/add_nodes.bash
   - su ${admin_user} -c "/home/ubuntu/add_nodes.bash ${nb_nodes}"
