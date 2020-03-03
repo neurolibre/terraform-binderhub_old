@@ -6,11 +6,12 @@ resource "random_id" "token" {
 data "template_file" "config" {
   template = "${file("${path.module}/assets/config.yaml")}"
   vars = {
-    domain    = "${var.domain}"
-    TLS_name  = "${var.TLS_name}"
-    cpu_alloc = "${var.cpu_alloc}"
-    mem_alloc = "${var.mem_alloc_gb}"
-    docker_id = "${var.docker_id}"
+    domain          = "${var.domain}"
+    TLS_name        = "${var.TLS_name}"
+    cpu_alloc       = "${var.cpu_alloc}"
+    mem_alloc       = "${var.mem_alloc_gb}"
+    docker_registry = "${var.docker_registry}"
+    docker_id       = "${var.docker_id}"
   }
 }
 
@@ -19,7 +20,7 @@ data "template_file" "secrets" {
   vars = {
     api_token       = "${random_id.token.0.hex}"
     secret_token    = "${random_id.token.1.hex}"
-    docker_registry = "${var.docker_registry_url}"
+    docker_registry = "${var.docker_registry}"
     docker_id       = "${var.docker_id}"
     docker_password = "${var.docker_password}"
   }
@@ -56,7 +57,7 @@ data "template_file" "install-binderhub" {
   vars = {
     binder_version  = "${var.binder_version}"
     admin_user      = "${var.admin_user}"
-    docker_registry = "${var.docker_registry_url}"
+    docker_registry = "${var.docker_registry}"
     docker_id       = "${var.docker_id}"
     docker_password = "${var.docker_password}"
   }
