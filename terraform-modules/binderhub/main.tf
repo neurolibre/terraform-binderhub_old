@@ -19,6 +19,7 @@ data "template_file" "secrets" {
   vars = {
     api_token       = "${random_id.token.0.hex}"
     secret_token    = "${random_id.token.1.hex}"
+    docker_registry = "${var.docker_registry_url}"
     docker_id       = "${var.docker_id}"
     docker_password = "${var.docker_password}"
   }
