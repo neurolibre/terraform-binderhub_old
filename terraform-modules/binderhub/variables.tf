@@ -29,6 +29,11 @@ variable "binder_version" {
   description = "binderhub helm chart version - https://jupyterhub.github.io/helm-chart/#development-releases-binderhub"
 }
 
+variable "docker_registry" {
+  description = "Docker registry url"
+  default = "docker.io"
+}
+
 variable "docker_id" {
   description = "Docker hub username"
 }
