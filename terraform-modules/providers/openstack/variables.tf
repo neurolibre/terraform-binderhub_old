@@ -41,3 +41,16 @@ variable "cc_private_network" {
   description = "Private network to join (must be set on ComputeCanada)"
   default     = ""
 }
+
+variable "docker_registry" {
+  description = "Docker registry url"
+  default = "docker.io"
+}
+
+variable "docker_id" {
+  description = "Docker hub username"
+}
+
+variable "docker_password" {
+  description = "Docker hub password"
+}
