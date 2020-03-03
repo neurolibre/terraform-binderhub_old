@@ -8,10 +8,6 @@ cd /home/${admin_user}
 #Persistent volume
 kubectl create -f pv.yaml
 
-# Configure docker registry
-sudo mv /tmp/kubeadm-bootstrap/configure_docker.bash /home/ubuntu/
-su ${admin_user} -c "/home/ubuntu/configure_docker.bash ${docker_registry} ${docker_id} ${docker_password}"
-
 # TLS certificate management
 # cert-manager
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
