@@ -33,7 +33,7 @@ config:
   BinderHub:
     hub_url: https://${domain}/jupyter
     use_registry: true
-    image_prefix: binder-registry.conp.cloud/${domain}-
+    image_prefix: ${docker_registry}/${domain}-
 
 service:
   type: NodePort
