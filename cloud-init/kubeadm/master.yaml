@@ -20,8 +20,6 @@ runcmd:
   - kubectl label nodes `hostname` type=production  
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
-  # Authorizing root authentification
-  - cp /tmp/kubeadm-bootstrap/authorized_keys /shared/
   #- mv /tmp/kubeadm-bootstrap/authorized_keys /root/.ssh/
   # ssh config for nodes
   # make sure that k8s node is ready
