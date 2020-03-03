@@ -21,14 +21,17 @@ runcmd:
   # k8s commands
   - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
   # ssh config for nodes
-  # make sure that k8s node is ready
+  # make sure that k8s node is ready, and enable easy ssh
   - mv /tmp/kubeadm-bootstrap/add_nodes.bash /home/ubuntu/
-  - mv /tmp/kubeadm-bootstrap/config /home/ubuntu/.ssh/
   - chmod a+x /home/ubuntu/add_nodes.bash;
   - chgrp ubuntu /home/ubuntu/.ssh/config;
   - chown ubuntu /home/ubuntu/.ssh/config;
+  - touch /home/ubuntu/.ssh/config
   - su ${admin_user} -c "/home/ubuntu/add_nodes.bash ${nb_nodes}"
   # Configure docker registry
+	- echo "Host registry" >> /home/ubuntu/.ssh/config;
+	- echo "        HostName "${docker_registry} >> /home/ubuntu/.ssh/config;
+	- echo "        User "${admin_user} >> /home/ubuntu/.ssh/config; 
   - mv /tmp/kubeadm-bootstrap/configure_docker.bash /home/ubuntu/
   - su ${admin_user} -c "/home/ubuntu/configure_docker.bash ${docker_registry} ${docker_id} ${docker_password}"
   # creating flag to say that master configuration finished
