@@ -10,7 +10,7 @@ kubectl create -f pv.yaml
 
 # Configure docker registry
 sudo mv /tmp/kubeadm-bootstrap/configure_docker.bash /home/ubuntu/
-su ${admin_user} -c "/home/ubuntu/configure_docker.bash ${docker_registry_url} ${docker_id} ${docker_password}"
+su ${admin_user} -c "/home/ubuntu/configure_docker.bash ${docker_registry} ${docker_id} ${docker_password}"
 
 # TLS certificate management
 # cert-manager
