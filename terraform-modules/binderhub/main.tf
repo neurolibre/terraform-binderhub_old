@@ -24,15 +24,6 @@ data "template_file" "secrets" {
   }
 }
 
-data "template_file" "kubeadm_master" {
-  template = "${file("${path.module}/../../cloud-init/kubeadm/master.yaml")}"
-
-  vars {
-    docker_id       = "${var.docker_id}"
-    docker_password = "${var.docker_password}"
-  }
-}
-
 data "template_file" "pv" {
   template = "${file("${path.module}/assets/pv.yaml")}"
   vars = { }
@@ -62,8 +53,11 @@ data "template_file" "staging-binderhub-issuer" {
 data "template_file" "install-binderhub" {
   template = "${file("${path.module}/assets/install-binderhub.sh")}"
   vars = {
-    binder_version = "${var.binder_version}"
-    admin_user     = "${var.admin_user}"
+    binder_version  = "${var.binder_version}"
+    admin_user      = "${var.admin_user}"
+    docker_registry = "${var.docker_registry_url}"
+    docker_id       = "${var.docker_id}"
+    docker_password = "${var.docker_password}"
   }
 }
 
