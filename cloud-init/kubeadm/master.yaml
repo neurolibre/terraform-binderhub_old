@@ -30,7 +30,7 @@ runcmd:
   - chown ubuntu /home/ubuntu/.ssh/config;
   - su ${admin_user} -c "/home/ubuntu/add_nodes.bash ${nb_nodes}"
   # enabling docker login for private registry
-  - docker login binder-registry.conp.cloud --username $docker_id --password $docker_password
+  - docker login binder-registry.conp.cloud --username ${docker_id} --password ${docker_password}
   - https://kubernetes.io/docs/concepts/containers/images/#configuring-nodes-to-authenticate-to-a-private-registry
   # creating flag to say that master configuration finished
   - touch /shared/k8s-initialized
