@@ -57,7 +57,6 @@ data "template_file" "install-binderhub" {
   vars = {
     binder_version  = "${var.binder_version}"
     admin_user      = "${var.admin_user}"
-    docker_registry = "${var.docker_registry}"
     docker_id       = "${var.docker_id}"
     docker_password = "${var.docker_password}"
   }
