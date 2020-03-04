@@ -136,6 +136,9 @@ data "template_file" "kubeadm_node" {
   vars {
     master_ip  = "${openstack_compute_instance_v2.master.network.0.fixed_ip_v4}"
     admin_user = "${var.admin_user}"
+    docker_registry = "${var.docker_registry}"
+    docker_id 	    = "${var.docker_id}"
+    docker_password = "${var.docker_password}"
   }
 }
 
