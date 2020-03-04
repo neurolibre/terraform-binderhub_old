@@ -11,5 +11,6 @@ runcmd:
   # Kubeadm  
   - echo "while [ ! -f /shared/kubeadm-join.bash ]; do sleep 1; done; sudo bash /shared/kubeadm-join.bash" >> /tmp/install.sh
   - su ${admin_user} -c "/tmp/install.sh"
-  # authorizing root login
-  - sudo sed -i "s/,command=\"echo 'Please login as the user \\\\\"ubuntu\\\\\" rather than the user \\\\\"root\\\\\".';echo;sleep 10\"//" /root/.ssh/authorized_keys
+  # authorizing docker
+  - docker login ${docker_registry} --username ${docker_id} --password ${docker_password}
+  - cp $HOME/.docker/config.json /var/lib/kubelet/
