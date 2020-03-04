@@ -27,6 +27,7 @@ runcmd:
   - chmod u+x /home/${admin_user}/add_nodes.bash
   - su ${admin_user} -c "/home/${admin_user}/add_nodes.bash ${nb_nodes}"
   # Configure docker registry
+  - echo "" >> /home/${admin_user}/.ssh/config;
   - echo "Host registry" >> /home/${admin_user}/.ssh/config;
   - echo "        HostName "${docker_registry} >> /home/${admin_user}/.ssh/config;
   - echo "        User "${admin_user} >> /home/${admin_user}/.ssh/config; 
