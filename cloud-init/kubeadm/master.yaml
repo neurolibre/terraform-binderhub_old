@@ -19,7 +19,7 @@ runcmd:
   - kubeadm token create --print-join-command > /shared/kubeadm-join.bash
   - kubectl label nodes `hostname` type=production  
   # k8s commands
-  - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/ubuntu/.bashrc
+  - cat /tmp/kubeadm-bootstrap/.bashrc >> /home/${admin_user}/.bashrc
   # ssh config for nodes
   # make sure that k8s node is ready, and enable easy ssh
   - su ${admin_user} -c "touch /home/${admin_user}/.ssh/config"
