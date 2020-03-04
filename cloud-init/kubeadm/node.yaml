@@ -13,4 +13,4 @@ runcmd:
   - su ${admin_user} -c "/tmp/install.sh"
   # authorizing docker
   - docker login ${docker_registry} --username ${docker_id} --password ${docker_password}
-  - cp $HOME/.docker/config.json /var/lib/kubelet/
+  - cp ${HOME}/.docker/config.json /var/lib/kubelet/
