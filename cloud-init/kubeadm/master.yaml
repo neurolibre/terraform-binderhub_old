@@ -31,8 +31,8 @@ runcmd:
   - echo "Host registry" >> /home/${admin_user}/.ssh/config;
   - echo "        HostName "${docker_registry} >> /home/${admin_user}/.ssh/config;
   - echo "        User "${admin_user} >> /home/${admin_user}/.ssh/config; 
-  - docker login ${docker_registry} --username ${docker_id} --password ${docker_password}
+  - su ${admin_user} -c "sudo docker login ${docker_registry} --username ${docker_id} --password ${docker_password}"
   - while [ ! -d /var/lib/kubelet/ ]; do sleep 1; done; 
-  - cp /root/.docker/config.json /var/lib/kubelet/
+  - cp /home/${admin_user}/.docker/config.json /var/lib/kubelet/
   # creating flag to say that master configuration finished
   - touch /shared/k8s-initialized
