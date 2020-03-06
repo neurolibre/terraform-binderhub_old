@@ -19,10 +19,66 @@ jupyterhub:
           - ${domain}
   hub:
     baseUrl: /jupyter/
+    image:
+      name: ${docker_registry}/hub-image
+      tag: v1.1
+    extraVolumes:
+    - name: shared-data
+      hostPath:
+        path: /DATA
+    extraVolumeMounts:
+    - name: shared-data
+      mountPath: /srv/jupyterhub/data  # where hub can reach the shared data
+    extraConfig:
+      myExtraConfig: |
+        import os
+        import git
+        import shutil
+        import tempfile 
+        import subprocess
+        from repo2data.repo2data import Repo2Data
+  
+        async def my_pre_spawn_hook(spawner):
+          repo_url = spawner.user_options.get('repo_url')
+          ref = spawner.user_options.get('image').split(':')[-1]  # commit hash
+          # Create temporary dir
+          t = tempfile.mkdtemp()
+          # Clone into temporary dir
+          git.Repo.clone_from(repo_url, t, branch='master', depth=1)
+          exists = os.path.isfile(os.path.join(t, 'binder/data_requirement.json'))
+          exists = (exists and os.path.isfile(os.path.join(t, 'binder/requirements.txt')))
+          if exists:
+            # Copy desired file from temporary dir
+            if os.path.isfile('data_requirement.json'):
+              os.remove('data_requirement.json')
+            if os.path.isfile('requirements.txt'):
+              os.remove('requirements.txt')
+            shutil.move(os.path.join(t, 'binder/data_requirement.json'), '.')
+            shutil.move(os.path.join(t, 'binder/requirements.txt'), '.')
+            Repo2Data().install()
+            os.remove('requirements.txt')
+            os.remove('data_requirement.json')
+  
+          # Remove temporary dir
+          shutil.rmtree(t)
+  
+        c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
   proxy:
     service:
       type: NodePort
+  cull:
+    timeout: 900
+    every: 120
   singleuser:
+    storage:
+      extraVolumes:
+      - name: shared-data
+        hostPath:
+          path: /DATA
+      extraVolumeMounts:
+      - name: shared-data
+        mountPath: /home/jovyan/data  # where each user can reach shared data
+        readOnly : true
     memory:
        guarantee: ${mem_alloc}G
     cpu:
