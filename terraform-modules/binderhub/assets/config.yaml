@@ -21,7 +21,7 @@ jupyterhub:
     baseUrl: /jupyter/
     image:
       name: ${docker_registry}/hub-image
-      tag: v1.2
+      tag: v1.3
     extraVolumes:
     - name: shared-data
       hostPath:
@@ -55,7 +55,7 @@ jupyterhub:
               os.remove('requirements.txt')
             shutil.move(os.path.join(t, 'binder/data_requirement.json'), '.')
             shutil.move(os.path.join(t, 'binder/requirements.txt'), '.')
-            Repo2Data(use_server=True).install()
+            Repo2Data(server=True).install()
             os.remove('requirements.txt')
             os.remove('data_requirement.json')
   
