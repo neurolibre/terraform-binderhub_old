@@ -67,7 +67,7 @@ jupyterhub:
     service:
       type: NodePort
   cull:
-    timeout: 900
+    timeout: 600
     every: 120
   singleuser:
     storage:
