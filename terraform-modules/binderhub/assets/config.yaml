@@ -86,6 +86,9 @@ jupyterhub:
 
 # BinderHub config
 config:
+  GitHubRepoProvider:
+    banned_specs:
+      - ^(?!neurolibre\/.*).*
   BinderHub:
     hub_url: https://${domain}/jupyter
     use_registry: true
