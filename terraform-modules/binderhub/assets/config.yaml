@@ -89,6 +89,11 @@ config:
   GitHubRepoProvider:
     banned_specs:
       - ^(?!neurolibre\/.*).*
+      - ^ines/spacy-binder.*
+      - ^soft4voip/rak.*
+      - ^hmharshit/cn-ait.*
+      - ^shishirchoudharygic/mltraining.*
+      - ^hmharshit/mltraining.*
   BinderHub:
     hub_url: https://${domain}/jupyter
     use_registry: true
