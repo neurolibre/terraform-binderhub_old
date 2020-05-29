@@ -1,6 +1,10 @@
-provider "openstack" {
+provider "opennebula" {
+  endpoint = "api's endpoint"
+  username = "user's name"
+  password = "user's password"
   version = ">= v0.1.1 "
 }
+
 data "opennebula_image" "ubuntu" {
   name = "${var.image_name}"
 }
