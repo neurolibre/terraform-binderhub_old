@@ -20,13 +20,22 @@ sudo helm install \
   --namespace cert-manager \
   --version v0.13.1 \
   jetstack/cert-manager
+#wait until cert-manager is ready
+kubectl wait --namespace cert-manager \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
 kubectl create namespace binderhub
-#wait until cert-manager webhook is ready
-sleep 1m
 kubectl apply -f staging-binderhub-issuer.yaml
 kubectl apply -f production-binderhub-issuer.yaml
+
 # Binderhub proxy
 sudo helm install --name binderhub-proxy --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
+# wait until nginx is ready (https://kubernetes.github.io/ingress-nginx/deploy/)
+kubectl wait --namespace binderhub \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
 kubectl get services --namespace binderhub binderhub-proxy-nginx-ingress-controller
 
 # Binderhub
