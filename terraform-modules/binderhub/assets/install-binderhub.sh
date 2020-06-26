@@ -12,14 +12,19 @@ kubectl create -f pv.yaml
 # cert-manager
 kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
 kubectl create namespace cert-manager
-kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+#kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
 sudo helm repo add jetstack https://charts.jetstack.io
 sudo helm repo update
+# running on mster node to avoid issues with webhook not in the k8s network
 sudo helm install \
   --name cert-manager \
   --namespace cert-manager \
-  --version v0.13.1 \
-  jetstack/cert-manager
+  --version v0.12.0 \
+  jetstack/cert-manager \
+  --set nodeSelector."node-role\.kubernetes\.io/master=" \
+  --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
+  --set webhook.nodeSelector."node-role\.kubernetes\.io/master="
+
 #wait until cert-manager is ready
 kubectl wait --namespace cert-manager \
   --for=condition=ready pod \
