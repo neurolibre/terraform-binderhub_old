@@ -29,7 +29,7 @@ sudo helm install \
 kubectl wait --namespace cert-manager \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/instance=cert-manager \
-  --timeout=120s
+  --timeout=300s
 kubectl create namespace binderhub
 kubectl apply -f staging-binderhub-issuer.yaml
 kubectl apply -f production-binderhub-issuer.yaml
