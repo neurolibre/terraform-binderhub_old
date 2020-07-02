@@ -19,7 +19,7 @@ sudo helm repo update
 sudo helm install \
   --name cert-manager \
   --namespace cert-manager \
-  --version v0.12.0 \
+  --version v0.13.1 \
   jetstack/cert-manager \
   --set nodeSelector."node-role\.kubernetes\.io/master=" \
   --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
