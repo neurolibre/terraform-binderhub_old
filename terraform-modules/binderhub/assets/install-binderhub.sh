@@ -25,6 +25,9 @@ sudo helm install \
   --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
   --set webhook.nodeSelector."node-role\.kubernetes\.io/master="
 
+#kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=admin-user
+#helm install --name cert-manager --namespace cert-manager --version v0.15.1 jetstack/cert-manager --set installCRDs=true --set nodeSelector."node-role\.kubernetes\.io/master=" --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" --set webhook.nodeSelector."node-role\.kubernetes\.io/master="
+
 #wait until cert-manager is ready
 kubectl wait --namespace cert-manager \
   --for=condition=ready pod \
