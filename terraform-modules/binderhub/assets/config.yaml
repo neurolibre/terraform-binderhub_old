@@ -21,7 +21,7 @@ jupyterhub:
     baseUrl: /jupyter/
     image:
       name: ${docker_registry}/hub-image
-      tag: v1.3
+      tag: v1.4
     extraVolumes:
     - name: shared-data
       hostPath:
