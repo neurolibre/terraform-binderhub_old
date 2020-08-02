@@ -5,7 +5,7 @@ packages:
 runcmd:
   # NFS data
   - admin_home=${base_homedir:-/home}/${admin_user}
-  - [[ ${admin_user} == "root" ]] && admin_home=/root
+  - [ ${admin_user} = "root" ] && admin_home=/root
   - mkdir -p /DATA
   - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
