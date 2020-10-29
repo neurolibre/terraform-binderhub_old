@@ -10,35 +10,26 @@ kubectl create -f pv.yaml
 
 # TLS certificate management
 # cert-manager
-##kubectl apply -f https://raw.githubusercontent.com/jetstack/cert-manager/v0.13.1/deploy/manifests/00-crds.yaml
-##kubectl create namespace cert-manager
-#kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-##sudo helm repo add jetstack https://charts.jetstack.io
-##sudo helm repo update
-# running on mster node to avoid issues with webhook not in the k8s network
-##sudo helm install \
-##  --name cert-manager \
-##  --namespace cert-manager \
-##  --version v0.13.1 \
-##  jetstack/cert-manager \
-##  --set nodeSelector."node-role\.kubernetes\.io/master=" \
-##  --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
-##  --set webhook.nodeSelector."node-role\.kubernetes\.io/master="
-
-#kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=admin-user
-#helm install --name cert-manager --namespace cert-manager --version v0.15.1 jetstack/cert-manager --set installCRDs=true --set nodeSelector."node-role\.kubernetes\.io/master=" --set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" --set webhook.nodeSelector."node-role\.kubernetes\.io/master="
-
+kubectl create namespace cert-manager
+sudo helm repo add jetstack https://charts.jetstack.io
+sudo helm repo update
+sudo helm install --name cert-manager --namespace cert-manager --version v1.0.3 jetstack/cert-manager --set installCRDs=true \
+--set nodeSelector."node-role\.kubernetes\.io/master=" \
+--set cainjector.nodeSelector."node-role\.kubernetes\.io/master=" \
+--set webhook.nodeSelector."node-role\.kubernetes\.io/master="
 #wait until cert-manager is ready
-##kubectl wait --namespace cert-manager \
-##  --for=condition=ready pod \
-##  --selector=app.kubernetes.io/instance=cert-manager \
-##  --timeout=300s
+kubectl wait --namespace cert-manager \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=cert-manager \
+  --timeout=300s
+# apply the issuer(s)
 kubectl create namespace binderhub
-##kubectl apply -f staging-binderhub-issuer.yaml
-##kubectl apply -f production-binderhub-issuer.yaml
+kubectl apply -f staging-binderhub-issuer.yaml
+kubectl apply -f production-binderhub-issuer.yaml
 
 # Binderhub proxy
-sudo helm install --name binderhub-proxy --namespace=binderhub stable/nginx-ingress -f nginx-ingress.yaml
+sudo helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx/
+sudo helm install --name binderhub-proxy --namespace=binderhub ingress-nginx/ingress-nginx -f nginx-ingress.yaml
 # wait until nginx is ready (https://kubernetes.github.io/ingress-nginx/deploy/)
 kubectl wait --namespace binderhub \
   --for=condition=ready pod \
