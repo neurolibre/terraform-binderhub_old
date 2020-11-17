@@ -1,3 +1,4 @@
+#https://alan-turing-institute.github.io/hub23-deploy/advanced/optimising-jupyterhub.html#labelling-nodes-for-core-purpose
 jupyterhub:
   ingress:
     enabled: true
