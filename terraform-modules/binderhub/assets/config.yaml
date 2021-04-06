@@ -1,14 +1,22 @@
+# Additionnal optimizations
 #https://alan-turing-institute.github.io/hub23-deploy/advanced/optimising-jupyterhub.html#labelling-nodes-for-core-purpose
 #https://github.com/alan-turing-institute/hub23-deploy/blob/main/deploy/prod.yaml#L56
+
+# add additionnal buttons https://binderhub.readthedocs.io/en/latest/cors.html#adjusting-binderhub-config-to-enable-cors
+cors: &cors
+  allowOrigin: '*'
+
 jupyterhub:
+  custom:
+    cors: *cors      
   ingress:
     enabled: true
     hosts:
-      - ${domain}
+      - binder.conp.cloud
     annotations:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
-      cert-manager.io/issuer: letsencrypt-staging
+      cert-manager.io/issuer: letsencrypt-production
     https:
       enabled: true
       type: nginx
@@ -16,14 +24,14 @@ jupyterhub:
       # Allow POSTs of upto 64MB, for large notebook support.
       proxy-body-size: 64m
     tls:
-      - secretName: ${TLS_name}-tls
+      - secretName: binder-conp-cloud-tls
         hosts:
-          - ${domain}
+          - binder.conp.cloud
   hub:
     baseUrl: /jupyter/
     image:
-      name: ${docker_registry}/hub-image
-      tag: v1.4
+      name: conpdev/hub-image
+      tag: v1.7
     extraVolumes:
     - name: shared-data
       hostPath:
@@ -46,33 +54,77 @@ jupyterhub:
           # Create temporary dir
           t = tempfile.mkdtemp()
           # Clone into temporary dir
-          git.Repo.clone_from(repo_url, t, branch='master', depth=1)
+          repo = git.Repo.clone_from(repo_url, t)
           exists = os.path.isfile(os.path.join(t, 'binder/data_requirement.json'))
-          exists = (exists and os.path.isfile(os.path.join(t, 'binder/requirements.txt')))
           if exists:
             # Copy desired file from temporary dir
             if os.path.isfile('data_requirement.json'):
               os.remove('data_requirement.json')
-            if os.path.isfile('requirements.txt'):
-              os.remove('requirements.txt')
             shutil.move(os.path.join(t, 'binder/data_requirement.json'), '.')
-            shutil.move(os.path.join(t, 'binder/requirements.txt'), '.')
             Repo2Data(server=True).install()
-            os.remove('requirements.txt')
-            os.remove('data_requirement.json')
-  
-          # Remove temporary dir
-          shutil.rmtree(t)
+            
+            book_src_path = os.path.join(t, "content")
+            book_build_dir = os.path.join(book_src_path, "_build")
+            book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{ref}"
+            # check if repo is a jupyter book, if book artifacts already exists, and if user provided req file
+            exists = os.path.isfile(os.path.join(book_src_path, "_config.yml"))
+            exists = (exists and not os.path.isdir(book_dst_path))
+            exists = (exists and os.path.isfile(os.path.join(t, 'binder/requirements.txt')))
+            # final check, if commit message does not contain "--build-book", we don't build
+            latest_message = repo.heads[0].commit.message
+            if not re.match(".*?--build-book.*?", latest_message):
+                    print("--build-book flag not present, jupyter book build will be disabled")
+                    exists = False
+            if exists:
+              # build environment here again! No choice if we want to have access to user env for book to build...
+              # here we can docker run on the built environment https://docker-py.readthedocs.io/en/stable/client.html
+              # volume bind var/docker for the hub-pod, to have access to docker images on the host
+              # import docker
+              # client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+              # img = spawner.user_options.get('image')
+              # pull(repository, tag={ref}, all_tags=False, **kwargs)
+              # client.containers.run(img, 'jupyter-book build content', mounts=docker.types.Mount(os.join(t, data), content/_build))
+              cmd = ["python3", "-m", "pip", "install", "--user", "--no-cache", "-r", os.path.join(t, 'binder/requirements.txt')]
+              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              print(process.stdout.read().decode("utf-8"))
+              
+              # add symlink to data path and build jupyter book
+              os.symlink(os.path.join("/srv/jupyterhub", "data"), os.path.join(t, "data"), target_is_directory=True)
+              cmd = ["jupyter-book", "build", book_src_path]
+              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              print(process.stdout.read().decode("utf-8"))
+              
+              # taring into cache storage server
+              cmd = ["tar", "-zcvf", os.path.join("/srv/jupyterhub/data/book-artifacts", f"{ref}.tar.gz"), book_build_dir]
+              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              print(process.stdout.read().decode("utf-8"))
+
+              # move build artifacts into cache storage server (for preview)
+              print(f"Moving {book_build_dir}/* into {book_dst_path}")
+              os.mkdir(book_dst_path)
+              dirnames = os.listdir(book_build_dir)
+              for dirname in dirnames:
+                shutil.move(os.path.join(book_build_dir, dirname), book_dst_path)
+              cmd = ["python3", "-m", "pip", "uninstall", "--user", "--no-cache", "-r", os.path.join(t, 'binder/requirements.txt')]
+              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+              print(process.stdout.read().decode("utf-8"))
+    
+            # Remove remaining stuff
+            os.remove("data_requirement.json")
+            shutil.rmtree(t)
   
         c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
   proxy:
     service:
       type: NodePort
   cull:
-    timeout: 600
-    every: 120
+    timeout: 1800 #30min
+    every: 30
+    max_age: 28800 #8h
+    concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
   singleuser:
     storage:
+      type: none
       extraVolumes:
       - name: shared-data
         hostPath:
@@ -82,24 +134,24 @@ jupyterhub:
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
     memory:
-       guarantee: ${mem_alloc}G
+       guarantee: 2G
     cpu:
-       guarantee: ${cpu_alloc}
+       guarantee: 1
 
 # BinderHub config
 config:
   GitHubRepoProvider:
     banned_specs:
-      - ^(?!neurolibre\/.*).*
+            #- ^(?!neurolibre\/.*).*
       - ^ines/spacy-binder.*
       - ^soft4voip/rak.*
       - ^hmharshit/cn-ait.*
       - ^shishirchoudharygic/mltraining.*
       - ^hmharshit/mltraining.*
   BinderHub:
-    hub_url: https://${domain}/jupyter
+    hub_url: https://binder.conp.cloud/jupyter
     use_registry: true
-    image_prefix: ${docker_registry}/${domain}/binder-
+    image_prefix: conpdev/binder-
 
 service:
   type: NodePort
@@ -110,11 +162,11 @@ storage:
 ingress:
   enabled: true
   hosts:
-    - ${domain}
+    - binder.conp.cloud
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/issuer: letsencrypt-staging
+    cert-manager.io/issuer: letsencrypt-production
   https:
     enabled: true
     type: nginx
@@ -122,6 +174,6 @@ ingress:
     # Allow POSTs of upto 64MB, for large notebook support.
     proxy-body-size: 64m
   tls:
-    - secretName: ${TLS_name}-tls
+    - secretName: binder-conp-cloud-tls
       hosts: 
-        - ${domain}
+        - binder.conp.cloud
