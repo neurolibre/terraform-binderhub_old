@@ -31,14 +31,20 @@ jupyterhub:
     baseUrl: /jupyter/
     image:
       name: conpdev/hub-image
-      tag: v1.7
+      tag: v1.9
+    fsGid: 999
     extraVolumes:
     - name: shared-data
       hostPath:
         path: /DATA
+    - name: docker-storage
+      hostPath:
+        path: /var/run/docker.sock
     extraVolumeMounts:
     - name: shared-data
       mountPath: /srv/jupyterhub/data  # where hub can reach the shared data
+    - name: docker-storage
+      mountPath: /var/run/docker.sock
     extraConfig:
       myExtraConfig: |
         import os
@@ -46,15 +52,23 @@ jupyterhub:
         import shutil
         import tempfile 
         import subprocess
+        import json
+        import datetime
+        import docker
         from repo2data.repo2data import Repo2Data
   
         async def my_pre_spawn_hook(spawner):
           repo_url = spawner.user_options.get('repo_url')
+          repo_name = repo_url.split("/")[-1]
+          user_name = repo_url.split("/")[-2]
+          provider_name = repo_url.split("/")[-3]
           ref = spawner.user_options.get('image').split(':')[-1]  # commit hash
           # Create temporary dir
           t = tempfile.mkdtemp()
           # Clone into temporary dir
-          repo = git.Repo.clone_from(repo_url, t)
+          print("Cloning {} and checkout to {}".format(repo_url, ref))
+          repo = git.Repo.clone_from(repo_url, t, no_checkout=True)
+          repo.git.checkout(ref)
           exists = os.path.isfile(os.path.join(t, 'binder/data_requirement.json'))
           if exists:
             # Copy desired file from temporary dir
@@ -62,71 +76,54 @@ jupyterhub:
               os.remove('data_requirement.json')
             shutil.move(os.path.join(t, 'binder/data_requirement.json'), '.')
             Repo2Data(server=True).install()
+            # at this stage, automatically change data_dir download path to path to /DATA
+            # this needs to happen on user environment pod (to update the notebooks) not here
+            # regexp all paths inside the notebooks (.*?/projectName).*? (from repo2data req) and replace by DATA/projectName path relative to curr ipynb
+            # https://stackoverflow.com/questions/24112727/relative-paths-based-on-file-location-instead-of-current-working-directory
             
-            book_src_path = os.path.join(t, "content")
-            book_build_dir = os.path.join(book_src_path, "_build")
-            book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{ref}"
-            # check if repo is a jupyter book, if book artifacts already exists, and if user provided req file
-            exists = os.path.isfile(os.path.join(book_src_path, "_config.yml"))
-            exists = (exists and not os.path.isdir(book_dst_path))
-            exists = (exists and os.path.isfile(os.path.join(t, 'binder/requirements.txt')))
-            # final check, if commit message does not contain "--build-book", we don't build
-            latest_message = repo.heads[0].commit.message
-            if not re.match(".*?--build-book.*?", latest_message):
-                    print("--build-book flag not present, jupyter book build will be disabled")
-                    exists = False
-            if exists:
-              # build environment here again! No choice if we want to have access to user env for book to build...
-              # here we can docker run on the built environment https://docker-py.readthedocs.io/en/stable/client.html
-              # volume bind var/docker for the hub-pod, to have access to docker images on the host
-              # import docker
-              # client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-              # img = spawner.user_options.get('image')
-              # pull(repository, tag={ref}, all_tags=False, **kwargs)
-              # client.containers.run(img, 'jupyter-book build content', mounts=docker.types.Mount(os.join(t, data), content/_build))
-              cmd = ["python3", "-m", "pip", "install", "--user", "--no-cache", "-r", os.path.join(t, 'binder/requirements.txt')]
-              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              print(process.stdout.read().decode("utf-8"))
-              
-              # add symlink to data path and build jupyter book
-              os.symlink(os.path.join("/srv/jupyterhub", "data"), os.path.join(t, "data"), target_is_directory=True)
-              cmd = ["jupyter-book", "build", book_src_path]
-              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              print(process.stdout.read().decode("utf-8"))
-              
-              # taring into cache storage server
-              cmd = ["tar", "-zcvf", os.path.join("/srv/jupyterhub/data/book-artifacts", f"{ref}.tar.gz"), book_build_dir]
-              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              print(process.stdout.read().decode("utf-8"))
-
-              # move build artifacts into cache storage server (for preview)
-              print(f"Moving {book_build_dir}/* into {book_dst_path}")
-              os.mkdir(book_dst_path)
-              dirnames = os.listdir(book_build_dir)
-              for dirname in dirnames:
-                shutil.move(os.path.join(book_build_dir, dirname), book_dst_path)
-              
-              # updating (or creating) json file for book informations
-              books_json = "/srv/jupyterhub/data/book-artifacts/books.json"
-              if not os.path.exists(books_json):
-                with open(books_json, mode='w', encoding='utf-8') as f:
-                  json.dump([], f)
-              if os.path.exists(books_json):
-                with open(books_json, mode='r', encoding='utf-8') as f:
-                  books_metadata = json.load(f)
-                entry = {"repo_url": repo_url, "commit_hash": ref, "time_added": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")}
-                books_metadata.append(entry)
-                with open(books_json, mode='w') as f:
-                  f.write(json.dumps(books_metadata, indent=2))
-              
-              #pip uninstal
-              cmd = ["python3", "-m", "pip", "uninstall", "--user", "--no-cache", "-r", os.path.join(t, 'binder/requirements.txt')]
-              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              print(process.stdout.read().decode("utf-8"))
+          book_src_path = os.path.join(t, "content")
+          book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{user_name}/{provider_name}/{repo_name}/{ref}"
+          built_flag_file = os.path.join(book_dst_path, "successfully_built")
+          # check if repo is a jupyter book, if book artifacts already exists, and if user provided req file
+          make_build = True
+          if not os.path.isfile(os.path.join(book_src_path, "_config.yml")):
+            print("{} not found".format(os.path.join(book_src_path, "_config.yml")))
+            make_build = False
+          if os.path.isfile(built_flag_file):
+            print("{} exists, skipping book build".format(built_flag_file))
+            make_build = False
+          # final check, if commit message contains "--no-build-book", we don't build
+          latest_message = repo.head.commit.message
+          if re.match(".*?--no-build-book.*?", latest_message):
+            print("--no-build-book flag present, jupyter book will not be built.")
+            make_build = False
+          if make_build:
+            # initialize output book dir
+            if not os.path.isdir(book_dst_path):
+              os.makedirs(book_dst_path)
+            os.chmod(book_dst_path, 0o777)
+            # build book from within Docker
+            book_dst_path_docker = book_dst_path.replace("srv/jupyterhub", "home/jovyan")
+            docker_img = spawner.user_options.get('image')
+            #client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+            #book_mount = docker.types.Mount(source="/DATA", target="/home/jovyan/data")
+            #docker_cmd = f"jupyter-book build content --path-output {book_dst_path_docker}"
+            #client.containers.run(docker_img, command=docker_cmd, mounts=book_mount)
+            cmd = ['docker', 'run', '-v', '/DATA:/home/jovyan/data', docker_img, 'jupyter-book', 'build', '--path-output', book_dst_path_docker, 'content']
+            print("Running jupyter-book build :\n {}".format(" ".join(cmd)))
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(process.stdout.read().decode("utf-8"))
+            open(built_flag_file, 'w').close()
+            # taring build book
+            cmd = ["tar", "-zcvf", book_dst_path + ".tar.gz", book_dst_path] 
+            print("Taring :\n {}".format(" ".join(cmd)))
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(process.stdout.read().decode("utf-8"))
     
-            # Remove remaining stuff
+          # Remove remaining stuff
+          if os.path.isfile("data_requirement.json"):
             os.remove("data_requirement.json")
-            shutil.rmtree(t)
+          shutil.rmtree(t)
   
         c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
   proxy:
