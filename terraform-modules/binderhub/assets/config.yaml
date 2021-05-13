@@ -112,8 +112,10 @@ jupyterhub:
             cmd = ['docker', 'run', '-v', '/DATA:/home/jovyan/data', docker_img, 'jupyter-book', 'build', '--path-output', book_dst_path_docker, 'content']
             print("Running jupyter-book build :\n {}".format(" ".join(cmd)))
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(process.stdout.read().decode("utf-8"))
-            open(built_flag_file, 'w').close()
+            book_build_logs = process.stdout.read().decode("utf-8")
+            with open(os.path.join(book_dst_path, "book-build.log"), "w") as f:
+              f.write(book_build_logs)
+            open(built_flag_file, "w").close()
             # taring build book
             cmd = ["tar", "-zcvf", book_dst_path + ".tar.gz", book_dst_path] 
             print("Taring :\n {}".format(" ".join(cmd)))
