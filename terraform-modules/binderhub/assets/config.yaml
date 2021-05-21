@@ -31,7 +31,7 @@ jupyterhub:
     baseUrl: /jupyter/
     image:
       name: conpdev/hub-image
-      tag: v1.10
+      tag: v1.11
     fsGid: 999
     extraVolumes:
     - name: shared-data
