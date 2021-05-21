@@ -48,7 +48,6 @@ jupyterhub:
     extraConfig:
       myExtraConfig: |
         import os
-        import git
         import shutil
         import tempfile 
         import subprocess
@@ -63,40 +62,49 @@ jupyterhub:
           user_name = repo_url.split("/")[-2]
           provider_name = repo_url.split("/")[-3]
           ref = spawner.user_options.get('image').split(':')[-1]  # commit hash
+          file_url = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{ref}/binder/"
           # Create temporary dir
           t = tempfile.mkdtemp()
-          # Clone into temporary dir
-          print("Cloning {} and checkout to {}".format(repo_url, ref))
-          repo = git.Repo.clone_from(repo_url, t, no_checkout=True)
-          repo.git.checkout(ref)
-          exists = os.path.isfile(os.path.join(t, 'binder/data_requirement.json'))
-          if exists:
+
+          # Repo2Data
+          # Get data_requirement from upstream
+          print("Getting data requirements from {}".format(file_url))
+          data_req_path = os.path.join(t, "data_requirement.json")
+          data_req_found = True
+          try:
+            urllib.request.urlretrieve(file_url + "data_requirement.json", data_req_path)
+          except:
+            print("{} not found".format(file_url + "data_requirement.json"))
+            data_req_found = False
+          if data_req_found:
             # Copy desired file from temporary dir
-            if os.path.isfile('data_requirement.json'):
-              os.remove('data_requirement.json')
-            shutil.move(os.path.join(t, 'binder/data_requirement.json'), '.')
-            Repo2Data(server=True).install()
-            # at this stage, automatically change data_dir download path to path to /DATA
+            Repo2Data(server=True, data_requirement=data_req_path).install()
+            # at this stage, automatically change data_dir download path to ./data
             # this needs to happen on user environment pod (to update the notebooks) not here
             # regexp all paths inside the notebooks (.*?/projectName).*? (from repo2data req) and replace by DATA/projectName path relative to curr ipynb
             # https://stackoverflow.com/questions/24112727/relative-paths-based-on-file-location-instead-of-current-working-directory
-            
-          book_src_path = os.path.join(t, "content")
+
+          # Jupyter book build
+          book_config_path = os.path.join(t, "content", "_config.yml")
           book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{user_name}/{provider_name}/{repo_name}/{ref}"
           built_flag_file = os.path.join(book_dst_path, "successfully_built")
-          # check if repo is a jupyter book, if book artifacts already exists, and if user provided req file
           make_build = True
-          if not os.path.isfile(os.path.join(book_src_path, "_config.yml")):
-            print("{} not found".format(os.path.join(book_src_path, "_config.yml")))
+          # check if jupyter book config exists
+          # book artifacts already exists and 
+          # commit message does not contain "--no-build-book"
+          try:
+            urllib.request.urlretrieve(file_url + "content/_config.yml", book_config_path)
+          except:
+            print("{} not found".format(file_url + "content/_config.yml"))
             make_build = False
           if os.path.isfile(built_flag_file):
             print("{} exists, skipping book build".format(built_flag_file))
             make_build = False
-          # final check, if commit message contains "--no-build-book", we don't build
-          latest_message = repo.head.commit.message
-          if re.match(".*?--no-build-book.*?", latest_message):
-            print("--no-build-book flag present, jupyter book will not be built.")
-            make_build = False
+          # TODO: how to handle commit messages if git not working on prod ???
+          #latest_message = repo.head.commit.message
+          #if re.match(".*?--no-build-book.*?", latest_message):
+          #  print("--no-build-book flag present, jupyter book will not be built.")
+          #  make_build = False
           if make_build:
             # initialize output book dir
             if not os.path.isdir(book_dst_path):
@@ -105,10 +113,6 @@ jupyterhub:
             # build book from within Docker
             book_dst_path_docker = book_dst_path.replace("srv/jupyterhub", "home/jovyan")
             docker_img = spawner.user_options.get('image')
-            #client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-            #book_mount = docker.types.Mount(source="/DATA", target="/home/jovyan/data")
-            #docker_cmd = f"jupyter-book build content --path-output {book_dst_path_docker}"
-            #client.containers.run(docker_img, command=docker_cmd, mounts=book_mount)
             cmd = ['docker', 'run', '-v', '/DATA:/home/jovyan/data', docker_img, 'jupyter-book', 'build', '--path-output', book_dst_path_docker, 'content']
             print("Running jupyter-book build :\n {}".format(" ".join(cmd)))
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -123,9 +127,7 @@ jupyterhub:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(process.stdout.read().decode("utf-8"))
     
-          # Remove remaining stuff
-          if os.path.isfile("data_requirement.json"):
-            os.remove("data_requirement.json")
+          # Remove tmp dir
           shutil.rmtree(t)
   
         c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
