@@ -54,6 +54,7 @@ jupyterhub:
         import json
         import datetime
         import docker
+        import urllib
         from repo2data.repo2data import Repo2Data
   
         async def my_pre_spawn_hook(spawner):
@@ -62,7 +63,7 @@ jupyterhub:
           user_name = repo_url.split("/")[-2]
           provider_name = repo_url.split("/")[-3]
           ref = spawner.user_options.get('image').split(':')[-1]  # commit hash
-          file_url = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{ref}/binder/"
+          file_url = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{ref}/"
           # Create temporary dir
           t = tempfile.mkdtemp()
 
@@ -72,9 +73,9 @@ jupyterhub:
           data_req_path = os.path.join(t, "data_requirement.json")
           data_req_found = True
           try:
-            urllib.request.urlretrieve(file_url + "data_requirement.json", data_req_path)
+            urllib.request.urlretrieve(file_url + "binder/data_requirement.json", data_req_path)
           except:
-            print("{} not found".format(file_url + "data_requirement.json"))
+            print("{} not found".format(file_url + "binder/data_requirement.json"))
             data_req_found = False
           if data_req_found:
             # Copy desired file from temporary dir
@@ -85,6 +86,7 @@ jupyterhub:
             # https://stackoverflow.com/questions/24112727/relative-paths-based-on-file-location-instead-of-current-working-directory
 
           # Jupyter book build
+          os.mkdir(os.path.join(t, "content"))
           book_config_path = os.path.join(t, "content", "_config.yml")
           book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{user_name}/{provider_name}/{repo_name}/{ref}"
           built_flag_file = os.path.join(book_dst_path, "successfully_built")
