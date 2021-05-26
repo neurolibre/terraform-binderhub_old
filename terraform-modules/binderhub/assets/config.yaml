@@ -51,8 +51,6 @@ jupyterhub:
         import shutil
         import tempfile 
         import subprocess
-        import json
-        import datetime
         import docker
         import urllib
         from repo2data.repo2data import Repo2Data
@@ -159,9 +157,12 @@ jupyterhub:
 
 # BinderHub config
 config:
+  Launcher:
+    retries: 10
+    retry_delay: 4
   GitHubRepoProvider:
     banned_specs:
-            #- ^(?!neurolibre\/.*).*
+      # - ^(?!neurolibre\/.*).*
       - ^ines/spacy-binder.*
       - ^soft4voip/rak.*
       - ^hmharshit/cn-ait.*
