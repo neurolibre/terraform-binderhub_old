@@ -43,3 +43,11 @@ sudo helm repo update
 sudo helm install jupyterhub/binderhub --version=${binder_version} \
   --name=binderhub --namespace=binderhub -f config.yaml -f secrets.yaml
 sudo apt-get install git-crypt
+# Grafana and prometheus
+# https://github.com/pangeo-data/pangeo-binder#binder-monitoring
+sudo helm repo add grafana https://grafana.github.io/helm-charts
+sudo helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+sudo helm repo add kube-state-metrics https://kubernetes.github.io/kube-state-metrics
+sudo helm repo update
+sudo helm install grafana-prod grafana/grafana
+sudo helm install prometheus-prod prometheus-community/prometheus
