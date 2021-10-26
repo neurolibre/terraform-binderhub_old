@@ -30,7 +30,7 @@ jupyterhub:
   hub:
     baseUrl: /jupyter/
     image:
-      name: conpdev/hub-image
+      name: binder-registry.conp.cloud/hub-image
       tag: v1.15
     fsGid: 999
     extraVolumes:
@@ -113,6 +113,10 @@ jupyterhub:
             # build book from within Docker
             book_dst_path_docker = book_dst_path.replace("srv/jupyterhub", "home/jovyan")
             docker_img = spawner.user_options.get('image')
+            # first pulling image to make sure it is accessible into this node
+            cmd = ['docker', 'pull', docker_img]
+            print("Pulling docker image :\n {}".format(" ".join(cmd)))
+            # now running jupyter-book command
             cmd = ['docker', 'run', '-v', '/DATA:/home/jovyan/data', docker_img, 'jupyter-book', 'build', '--path-output', book_dst_path_docker, 'content']
             print("Running jupyter-book build :\n {}".format(" ".join(cmd)))
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -152,9 +156,9 @@ jupyterhub:
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
     memory:
-       guarantee: 2G
+       limit: 2G
     cpu:
-       guarantee: 1
+       limit: 1
 
 # BinderHub config
 config:
@@ -172,7 +176,7 @@ config:
   BinderHub:
     hub_url: https://binder.conp.cloud/jupyter
     use_registry: true
-    image_prefix: conpdev/binder-
+    image_prefix: binder-registry.conp.cloud/binder-registry.conp.cloud/binder-
 
 service:
   type: NodePort
