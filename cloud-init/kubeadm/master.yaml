@@ -5,7 +5,7 @@ packages:
 runcmd:
   # NFS data
   - mkdir -p /DATA
-  - echo "192.168.73.25:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
+  - echo "192.168.73.179:/DATA      /DATA      nfs rw,noatime,nolock,hard,tcp 0 0" >> /etc/fstab
   - mount -a
   # NFS
   - echo "/shared `hostname -I | awk '{print $1}' | grep -Po '(\d+\.){3}'`0/24(rw,sync,no_root_squash,no_all_squash)" > /etc/exports
