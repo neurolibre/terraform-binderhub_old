@@ -3,12 +3,8 @@
 #https://github.com/alan-turing-institute/hub23-deploy/blob/main/deploy/prod.yaml#L56
 
 # add additionnal buttons https://binderhub.readthedocs.io/en/latest/cors.html#adjusting-binderhub-config-to-enable-cors
-cors: &cors
-  allowOrigin: '*'
 
 jupyterhub:
-  custom:
-    cors: *cors      
   ingress:
     enabled: true
     hosts:
@@ -17,12 +13,6 @@ jupyterhub:
       kubernetes.io/ingress.class: nginx
       kubernetes.io/tls-acme: "true"
       cert-manager.io/issuer: letsencrypt-production
-    https:
-      enabled: true
-      type: nginx
-    config:
-      # Allow POSTs of upto 64MB, for large notebook support.
-      proxy-body-size: 64m
     tls:
       - secretName: binder-conp-cloud-tls
         hosts:
@@ -31,7 +21,7 @@ jupyterhub:
     baseUrl: /jupyter/
     image:
       name: binder-registry.conp.cloud/hub-image
-      tag: v1.15
+      tag: v1.16
     fsGid: 999
     extraVolumes:
     - name: shared-data
@@ -142,7 +132,6 @@ jupyterhub:
   cull:
     timeout: 1800 #30min
     every: 30
-    max_age: 28800 #8h
     concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
   singleuser:
     storage:
@@ -181,9 +170,6 @@ config:
 service:
   type: NodePort
 
-storage:
-  capacity: 2G
-
 ingress:
   enabled: true
   hosts:
@@ -195,9 +181,6 @@ ingress:
   https:
     enabled: true
     type: nginx
-  config:
-    # Allow POSTs of upto 64MB, for large notebook support.
-    proxy-body-size: 64m
   tls:
     - secretName: binder-conp-cloud-tls
       hosts: 
