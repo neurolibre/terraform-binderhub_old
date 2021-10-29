@@ -17,6 +17,10 @@ jupyterhub:
       - secretName: binder-conp-cloud-tls
         hosts:
           - binder.conp.cloud
+  #https://discourse.jupyter.org/t/pre-building-images-on-binderhub/4325/4
+  prePuller:
+    continuous:
+      enabled: true
   hub:
     baseUrl: /jupyter/
     image:
@@ -68,63 +72,8 @@ jupyterhub:
           if data_req_found:
             # Copy desired file from temporary dir
             Repo2Data(server=True, data_requirement=data_req_path).install()
-            # at this stage, automatically change data_dir download path to ./data
-            # this needs to happen on user environment pod (to update the notebooks) not here
-            # regexp all paths inside the notebooks (.*?/projectName).*? (from repo2data req) and replace by DATA/projectName path relative to curr ipynb
-            # https://stackoverflow.com/questions/24112727/relative-paths-based-on-file-location-instead-of-current-working-directory
-
-          # Jupyter book build
-          os.mkdir(os.path.join(t, "content"))
-          book_config_path = os.path.join(t, "content", "_config.yml")
-          book_dst_path = f"/srv/jupyterhub/data/book-artifacts/{user_name}/{provider_name}/{repo_name}/{ref}"
-          built_flag_file = os.path.join(book_dst_path, "successfully_built")
-          make_build = True
-          # check if jupyter book config exists
-          # book artifacts already exists and 
-          # commit message does not contain "--no-build-book"
-          try:
-            urllib.request.urlretrieve(file_url + "content/_config.yml", book_config_path)
-          except:
-            print("{} not found".format(file_url + "content/_config.yml"))
-            make_build = False
-          if os.path.isfile(built_flag_file):
-            print("{} exists, skipping book build".format(built_flag_file))
-            make_build = False
-          # TODO: how to handle commit messages if git not working on prod ???
-          #latest_message = repo.head.commit.message
-          #if re.match(".*?--no-build-book.*?", latest_message):
-          #  print("--no-build-book flag present, jupyter book will not be built.")
-          #  make_build = False
-          if make_build:
-            # initialize output book dir
-            if not os.path.isdir(book_dst_path):
-              os.makedirs(book_dst_path)
-            os.chmod(book_dst_path, 0o777)
-            # build book from within Docker
-            book_dst_path_docker = book_dst_path.replace("srv/jupyterhub", "home/jovyan")
-            docker_img = spawner.user_options.get('image')
-            # first pulling image to make sure it is accessible into this node
-            cmd = ['docker', 'pull', docker_img]
-            print("Pulling docker image :\n {}".format(" ".join(cmd)))
-            # now running jupyter-book command
-            cmd = ['docker', 'run', '-v', '/DATA:/home/jovyan/data', docker_img, 'jupyter-book', 'build', '--path-output', book_dst_path_docker, 'content']
-            print("Running jupyter-book build :\n {}".format(" ".join(cmd)))
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            book_build_logs = process.stderr.read().decode("utf-8")
-            book_build_logs = book_build_logs + process.stdout.read().decode("utf-8")
-            with open(os.path.join(book_dst_path, "book-build.log"), "w") as f:
-              f.write(book_build_logs)
-            if os.path.exists(os.path.join(book_dst_path, "_build")):
-              open(built_flag_file, "w").close()
-              # taring build book
-              cmd = ["tar", "-zcvf", book_dst_path + ".tar.gz", book_dst_path] 
-              print("Taring :\n {}".format(" ".join(cmd)))
-              process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-              print(process.stdout.read().decode("utf-8"))
-    
           # Remove tmp dir
-          shutil.rmtree(t)
-  
+          shutil.rmtree(t) 
         c.KubeSpawner.pre_spawn_hook = my_pre_spawn_hook
   proxy:
     service:
@@ -133,6 +82,7 @@ jupyterhub:
     timeout: 1800 #30min
     every: 30
     concurrency: 5 #to avoid Hub slow down, 5 concurrent processes
+    maxAge: 28800 #8h
   singleuser:
     storage:
       type: none
@@ -140,20 +90,33 @@ jupyterhub:
       - name: shared-data
         hostPath:
           path: /DATA
+      - name: book-data
+        hostPath:
+          path: /DATA/book-artifacts
       extraVolumeMounts:
       - name: shared-data
         mountPath: /home/jovyan/data  # where each user can reach shared data
         readOnly : true
+      - name: book-data
+        mountPath: /mnt/books
     memory:
        limit: 2G
     cpu:
-       limit: 1
+       limit: 2
+    startTimeout: 1800 #30min
+    #for repo2data https://zero-to-jupyterhub.readthedocs.io/en/latest/resources/reference.html#singleuser-initcontainers
+    # https://zero-to-jupyterhub.readthedocs.io/en/latest/jupyterhub/customizing/user-environment.html#about-user-storage-and-adding-files-to-it
+    extraFiles:
+      jb_build:
+        mountPath: /usr/local/share/jb_build.bash
+        mode: 0755
+    lifecycleHooks:
+      postStart:
+        exec:
+          command: ["bash", "/usr/local/share/jb_build.bash"]   
 
 # BinderHub config
 config:
-  Launcher:
-    retries: 10
-    retry_delay: 4
   GitHubRepoProvider:
     banned_specs:
       # - ^(?!neurolibre\/.*).*
